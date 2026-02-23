@@ -26,19 +26,16 @@ function Nav() {
 
   return (
     <div className="nav">
-      <div className="logo">Boreal Insurance</div>
+      <div>Boreal Insurance</div>
       <div>
         <Link to="/">Home</Link>
-        <Link to="/what-is-pgi">What is PGI</Link>
-        <Link to="/claims">Claims</Link>
-        <Link to="/resources">Resources</Link>
-        <Link to="/contact">Contact</Link>
-        <Link to="/apply">Apply Now</Link>
-
-        {!role && <Link to="/login">Lender Login</Link>}
-        {!role && <Link to="/login?role=referrer">Referrer Login</Link>}
+        <Link to="/apply">Apply</Link>
 
         {role && <Link to="/dashboard">Dashboard</Link>}
+        {role === "admin" && <Link to="/reports">Reports</Link>}
+
+        {!role && <Link to="/login">Login</Link>}
+
         {role && (
           <button
             onClick={() => {
@@ -54,130 +51,18 @@ function Nav() {
   );
 }
 
-/* ================= PREMIUM CALC ================= */
-
-function calculatePremium(loanAmount: number, loanType: string) {
-  const insuredAmount = Math.min(loanAmount * 0.8, 1400000);
-  const rate = loanType === "Secured" ? 0.016 : 0.04;
-  const annualPremium = insuredAmount * rate;
-  return { insuredAmount, annualPremium };
-}
-
 /* ================= HOME ================= */
 
 function Home() {
   return (
     <div className="container">
-      <h1>Protect Your Personal Assets</h1>
+      <h1>Personal Guarantee Insurance</h1>
       <p>
-        Personal Guarantee Insurance protects directors and business
-        owners from personal liability when business loans default.
+        Protect your personal assets from business loan default.
       </p>
-
-      <div className="hero">
-        <img
-          src="https://images.unsplash.com/photo-1554224155-1696413565d3"
-          alt="Business owner"
-        />
-      </div>
-
-      <div className="cta">
-        <Link to="/apply" className="button-primary">
-          Get a Quote
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-/* ================= WHAT IS PGI ================= */
-
-function WhatIsPGI() {
-  return (
-    <div className="container">
-      <h1>What is Personal Guarantee Insurance?</h1>
-
-      <p>
-        When a business takes a loan, lenders often require a personal
-        guarantee from directors. If the business fails, directors can
-        be personally pursued for repayment.
-      </p>
-
-      <p>
-        Personal Guarantee Insurance covers up to 80% of the loan
-        amount (maximum $1,400,000 CAD).
-      </p>
-
-      <h3>Example</h3>
-      <p>
-        $1,000,000 secured loan → coverage up to $800,000 →
-        annual premium approx. 1.6% of insured amount.
-      </p>
-    </div>
-  );
-}
-
-/* ================= CLAIMS ================= */
-
-function Claims() {
-  return (
-    <div className="container">
-      <h1>Claims Process</h1>
-
-      <ol>
-        <li>Loan default occurs</li>
-        <li>Lender enforces personal guarantee</li>
-        <li>Claim submitted</li>
-        <li>Policy responds based on coverage</li>
-      </ol>
-
-      <p>
-        Claims are handled by the underwriter. Boreal Insurance
-        facilitates the process.
-      </p>
-    </div>
-  );
-}
-
-/* ================= RESOURCES ================= */
-
-function Resources() {
-  return (
-    <div className="container">
-      <h1>Resources</h1>
-      <ul>
-        <li>Policy wording</li>
-        <li>Application guide</li>
-        <li>Case studies</li>
-        <li>Director risk overview</li>
-      </ul>
-    </div>
-  );
-}
-
-/* ================= CONTACT ================= */
-
-function Contact() {
-  const [sent, setSent] = useState(false);
-
-  const submit = async () => {
-    setSent(true);
-  };
-
-  return (
-    <div className="container">
-      <h1>Contact Us</h1>
-
-      {sent ? (
-        <p>Message sent.</p>
-      ) : (
-        <>
-          <input placeholder="Name" />
-          <input placeholder="Email" />
-          <textarea placeholder="Message"></textarea>
-          <button onClick={submit}>Send</button>
-        </>
-      )}
+      <Link to="/apply" className="button-primary">
+        Get a Quote
+      </Link>
     </div>
   );
 }
@@ -189,17 +74,19 @@ function Apply() {
   const [form, setForm] = useState<any>({});
   const [loading, setLoading] = useState(false);
 
-  const update = (k: string, v: any) =>
-    setForm({ ...form, [k]: v });
+  const calculate = () => {
+    const loan = parseFloat(form.loanAmount || 0);
+    const insured = Math.min(loan * 0.8, 1400000);
+    const rate = form.loanType === "Secured" ? 0.016 : 0.04;
+    return {
+      insured,
+      premium: insured * rate
+    };
+  };
 
   const submit = async () => {
     setLoading(true);
-
-    const { insuredAmount, annualPremium } =
-      calculatePremium(
-        parseFloat(form.loanAmount),
-        form.loanType
-      );
+    const { insured, premium } = calculate();
 
     await fetch(`${API}/applications`, {
       method: "POST",
@@ -207,34 +94,30 @@ function Apply() {
       body: JSON.stringify({
         ...form,
         loanAmount: parseFloat(form.loanAmount),
-        insuredAmount,
-        annualPremium
+        insuredAmount: insured,
+        annualPremium: premium
       })
     });
 
     navigate("/success");
   };
 
-  const { insuredAmount, annualPremium } =
-    calculatePremium(
-      parseFloat(form.loanAmount || 0),
-      form.loanType || "Secured"
-    );
+  const { insured, premium } = calculate();
 
   return (
     <div className="container">
-      <h1>Apply</h1>
+      <h1>Application</h1>
 
       <input
         placeholder="Loan Amount"
         onChange={(e) =>
-          update("loanAmount", e.target.value)
+          setForm({ ...form, loanAmount: e.target.value })
         }
       />
 
       <select
         onChange={(e) =>
-          update("loanType", e.target.value)
+          setForm({ ...form, loanType: e.target.value })
         }
       >
         <option value="Secured">Secured (1.6%)</option>
@@ -244,26 +127,26 @@ function Apply() {
       <input
         placeholder="Full Name"
         onChange={(e) =>
-          update("name", e.target.value)
+          setForm({ ...form, name: e.target.value })
         }
       />
       <input
         placeholder="Email"
         onChange={(e) =>
-          update("email", e.target.value)
+          setForm({ ...form, email: e.target.value })
         }
       />
       <input
         placeholder="Business Name"
         onChange={(e) =>
-          update("businessName", e.target.value)
+          setForm({ ...form, businessName: e.target.value })
         }
       />
 
       <div className="quote-box">
-        Coverage: ${insuredAmount.toLocaleString()}
+        Coverage: ${insured.toLocaleString()}
         <br />
-        Premium: ${annualPremium.toLocaleString()}
+        Premium: ${premium.toLocaleString()}
       </div>
 
       <button disabled={loading} onClick={submit}>
@@ -273,26 +156,12 @@ function Apply() {
   );
 }
 
-/* ================= SUCCESS ================= */
-
-function Success() {
-  return (
-    <div className="container">
-      <h1>Application Submitted</h1>
-      <p>
-        Your application has been received and will be
-        reviewed.
-      </p>
-    </div>
-  );
-}
-
 /* ================= LOGIN ================= */
 
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("lender");
+  const [role, setRole] = useState("referrer");
 
   const login = async () => {
     const res = await fetch(`${API}/auth/login`, {
@@ -305,7 +174,6 @@ function Login() {
 
     localStorage.setItem("bi_token", data.token);
     localStorage.setItem("bi_role", role);
-    localStorage.setItem("bi_email", email);
 
     navigate("/dashboard");
   };
@@ -314,11 +182,9 @@ function Login() {
     <div className="container">
       <h1>Login</h1>
 
-      <select
-        onChange={(e) => setRole(e.target.value)}
-      >
-        <option value="lender">Lender</option>
+      <select onChange={(e) => setRole(e.target.value)}>
         <option value="referrer">Referrer</option>
+        <option value="lender">Lender</option>
         <option value="admin">Admin</option>
       </select>
 
@@ -356,31 +222,121 @@ function Dashboard() {
         <thead>
           <tr>
             <th>Policy</th>
+            <th>Premium</th>
             <th>Start</th>
-            <th>End</th>
-            {role === "referrer" && (
-              <th>Commission (10%)</th>
-            )}
+            {role === "referrer" && <th>Commission</th>}
           </tr>
         </thead>
         <tbody>
           {policies.map((p) => (
             <tr key={p.id}>
               <td>{p.policy_number}</td>
+              <td>${p.annual_premium}</td>
               <td>{p.start_date}</td>
-              <td>{p.end_date}</td>
               {role === "referrer" && (
-                <td>
-                  $
-                  {(
-                    p.annual_premium * 0.1
-                  ).toLocaleString()}
-                </td>
+                <td>${p.commission}</td>
               )}
             </tr>
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/* ================= ADMIN REPORTS ================= */
+
+function Reports() {
+  const [summary, setSummary] = useState<any>({});
+  const [referrers, setReferrers] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API}/reports/summary`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`
+      }
+    })
+      .then((r) => r.json())
+      .then(setSummary);
+
+    fetch(`${API}/reports/referrers`, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`
+      }
+    })
+      .then((r) => r.json())
+      .then(setReferrers);
+  }, []);
+
+  const markPaid = async (email: string) => {
+    await fetch(`${API}/commission/pay`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`
+      },
+      body: JSON.stringify({ referrer_email: email })
+    });
+
+    window.location.reload();
+  };
+
+  return (
+    <div className="container">
+      <h1>Admin Reports</h1>
+
+      <div className="stats">
+        <div>
+          Total Premium: $
+          {parseFloat(summary.total_premium || 0).toLocaleString()}
+        </div>
+        <div>
+          Total Commission: $
+          {parseFloat(summary.total_commission || 0).toLocaleString()}
+        </div>
+      </div>
+
+      <h3>Referrer Ledger</h3>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Referrer</th>
+            <th>Total</th>
+            <th>Unpaid</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {referrers.map((r) => (
+            <tr key={r.referrer_email}>
+              <td>{r.referrer_email}</td>
+              <td>${r.total_commission}</td>
+              <td>${r.unpaid}</td>
+              <td>
+                <button
+                  onClick={() =>
+                    markPaid(r.referrer_email)
+                  }
+                >
+                  Mark Paid
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ================= SUCCESS ================= */
+
+function Success() {
+  return (
+    <div className="container">
+      <h1>Application Submitted</h1>
+      <p>We will review your submission.</p>
     </div>
   );
 }
@@ -393,10 +349,6 @@ export default function App() {
       <Nav />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/what-is-pgi" element={<WhatIsPGI />} />
-        <Route path="/claims" element={<Claims />} />
-        <Route path="/resources" element={<Resources />} />
-        <Route path="/contact" element={<Contact />} />
         <Route path="/apply" element={<Apply />} />
         <Route path="/success" element={<Success />} />
         <Route path="/login" element={<Login />} />
@@ -405,6 +357,14 @@ export default function App() {
           element={
             <Protected>
               <Dashboard />
+            </Protected>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <Protected>
+              <Reports />
             </Protected>
           }
         />
