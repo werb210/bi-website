@@ -1,0 +1,87 @@
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: #061326;
+  color: white;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: #041020;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+}
+
+.button-primary {
+  background: #1ccad8;
+  color: black;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 80px 40px;
+  gap: 40px;
+}
+
+.hero img {
+  width: 50%;
+  border-radius: 12px;
+}
+
+.section {
+  padding: 80px 40px;
+  background: #081a34;
+}
+
+.section-light {
+  background: #0d2448;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+}
+
+.card {
+  background: #102a52;
+  padding: 30px;
+  border-radius: 12px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: none;
+}
+
+footer {
+  padding: 40px;
+  text-align: center;
+  background: #041020;
+  color: #aaa;
+}
