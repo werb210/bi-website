@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface AnalyticsData {
   total: number;
@@ -10,60 +11,87 @@ interface AnalyticsData {
 
 export default function MayaAnalytics() {
   const [data, setData] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("BI_ADMIN_TOKEN");
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/maya-analytics`)
-      .then((res) => res.json())
-      .then((json) => {
-        setData(json);
-        setLoading(false);
+    if (!token) {
+      navigate("/admin-login");
+      return;
+    }
+
+    fetch(`${import.meta.env.VITE_API_URL}/api/maya-analytics`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then((res) => {
+        if (!res.ok) {
+          localStorage.removeItem("BI_ADMIN_TOKEN");
+          navigate("/admin-login");
+          return null;
+        }
+        return res.json();
       })
-      .catch(() => setLoading(false));
+      .then((json) => {
+        if (json) setData(json);
+      });
   }, []);
 
-  if (loading) return <div style={{ padding: 40 }}>Loading...</div>;
-  if (!data) return <div style={{ padding: 40 }}>Failed to load data.</div>;
+  function handleLogout() {
+    localStorage.removeItem("BI_ADMIN_TOKEN");
+    navigate("/admin-login");
+  }
+
+  if (!data) return <div style={{ padding: 40 }}>Loading...</div>;
 
   return (
     <div style={{ padding: 40 }}>
       <h1>Maya Chat Analytics</h1>
 
-      <div style={{ marginBottom: 30 }}>
-        <h2>Overview</h2>
-        <p>
-          <strong>Total Leads:</strong> {data.total}
-        </p>
-        <p>
-          <strong>Leads Today:</strong> {data.today}
-        </p>
-        <p>
-          <strong>CRM Sent:</strong> {data.crmStatus?.sent || 0} |{" "}
-          <strong>Failed:</strong> {data.crmStatus?.failed || 0}
-        </p>
-      </div>
+      <button
+        onClick={handleLogout}
+        style={{
+          marginBottom: 20,
+          background: "#020C1C",
+          color: "white",
+          border: "none",
+          padding: "8px 14px",
+          cursor: "pointer"
+        }}
+      >
+        Logout
+      </button>
 
-      <div style={{ marginBottom: 30 }}>
-        <h2>Leads by Referral Code</h2>
-        <ul>
-          {data.referralBreakdown?.map((r, i) => (
-            <li key={i}>
-              {r.referral_code || "None"} — {r.count}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <h2>Overview</h2>
+      <p>
+        <strong>Total Leads:</strong> {data.total}
+      </p>
+      <p>
+        <strong>Leads Today:</strong> {data.today}
+      </p>
+      <p>
+        <strong>CRM Sent:</strong> {data.crmStatus?.sent || 0} |{" "}
+        <strong>Failed:</strong> {data.crmStatus?.failed || 0}
+      </p>
 
-      <div>
-        <h2>Leads by UTM Source</h2>
-        <ul>
-          {data.sourceBreakdown?.map((s, i) => (
-            <li key={i}>
-              {s.utm_source || "Direct"} — {s.count}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <h2>By Referral</h2>
+      <ul>
+        {data.referralBreakdown?.map((r, i) => (
+          <li key={i}>
+            {r.referral_code || "None"} — {r.count}
+          </li>
+        ))}
+      </ul>
+
+      <h2>By Source</h2>
+      <ul>
+        {data.sourceBreakdown?.map((s, i) => (
+          <li key={i}>
+            {s.utm_source || "Direct"} — {s.count}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
