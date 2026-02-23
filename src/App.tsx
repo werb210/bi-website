@@ -7,7 +7,11 @@ import {
   useLocation,
   Navigate
 } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+/* ================= CONFIG ================= */
+
+const API = "https://api.boreal.financial/bi";
 
 /* ================= PRODUCT RULES ================= */
 
@@ -19,32 +23,62 @@ function calculateQuote(data: any) {
   return { insuredAmount, annualPremium, rate };
 }
 
+/* ================= AUTH HELPERS ================= */
+
+function getToken() {
+  return localStorage.getItem("bi_token");
+}
+
+function getRole() {
+  return localStorage.getItem("bi_role");
+}
+
+function clearAuth() {
+  localStorage.removeItem("bi_token");
+  localStorage.removeItem("bi_role");
+}
+
+function Protected({ children, role }: any) {
+  const token = getToken();
+  const userRole = getRole();
+
+  if (!token) return <Navigate to="/login" />;
+  if (role && role !== userRole && userRole !== "admin")
+    return <Navigate to="/" />;
+
+  return children;
+}
+
 /* ================= NAVBAR ================= */
 
 function Navbar() {
+  const navigate = useNavigate();
+  const role = getRole();
+
   return (
     <div className="nav">
       <h2>Boreal Insurance</h2>
       <div className="nav-links">
         <Link to="/">Home</Link>
-        <Link to="/what-is-pgi">What is PGI</Link>
-        <Link to="/claims">Claims</Link>
-        <Link to="/case-studies">Case Studies</Link>
-        <Link to="/contact">Contact</Link>
-        <Link to="/apply" className="button-primary">Apply</Link>
-        <Link to="/login">Login</Link>
+        <Link to="/apply">Apply</Link>
+
+        {!role && <Link to="/login" className="button-primary">Login</Link>}
+
+        {role && (
+          <>
+            <Link to={`/${role}-dashboard`}>Dashboard</Link>
+            <button
+              className="button-primary"
+              onClick={() => {
+                clearAuth();
+                navigate("/");
+              }}
+            >
+              Logout
+            </button>
+          </>
+        )}
       </div>
-    </div>
-  );
-}
-
-/* ================= FOOTER ================= */
-
-function Footer() {
-  return (
-    <div style={{ marginTop: 80, padding: 40, background: "#041a35" }}>
-      <p>© {new Date().getFullYear()} Boreal Insurance</p>
-      <p>Personal Guarantee Insurance for Canadian Business Owners</p>
     </div>
   );
 }
@@ -56,22 +90,18 @@ function Home() {
   const [loanType, setLoanType] = useState("Secured");
   const navigate = useNavigate();
 
-  const getQuote = () => {
+  const calculate = () => {
     const result = calculateQuote({ loanAmount, loanType });
-    navigate("/quote", { state: { loanAmount, loanType, quote: result } });
+    navigate("/quote", {
+      state: { loanAmount, loanType, quote: result }
+    });
   };
 
   return (
     <div className="container">
-      <h1>Protect Your Personal Assets</h1>
-      <p>
-        When you sign a personal guarantee, your home, savings,
-        and personal assets may be at risk.
-      </p>
+      <h1>Personal Guarantee Insurance</h1>
 
       <div className="card">
-        <h2>Instant Premium Estimate</h2>
-
         <input
           placeholder="Loan Amount (CAD)"
           value={loanAmount}
@@ -86,128 +116,10 @@ function Home() {
           <option value="Unsecured">Unsecured (4.0%)</option>
         </select>
 
-        <button className="button-primary" onClick={getQuote}>
+        <button className="button-primary" onClick={calculate}>
           Calculate Premium
         </button>
       </div>
-
-      <h2>Coverage Overview</h2>
-      <ul>
-        <li>Up to 80% of loan exposure</li>
-        <li>Maximum insured amount $1,400,000 CAD</li>
-        <li>Annual premium based on loan type</li>
-        <li>Designed for Canadian lenders & directors</li>
-      </ul>
-    </div>
-  );
-}
-
-/* ================= WHAT IS PGI ================= */
-
-function WhatIsPGI() {
-  return (
-    <div className="container">
-      <h1>What is Personal Guarantee Insurance?</h1>
-
-      <p>
-        A personal guarantee makes a director personally liable
-        for business debt if the company cannot repay.
-      </p>
-
-      <h2>Why It Matters</h2>
-      <p>
-        If the business defaults, lenders may pursue your
-        personal assets including property and savings.
-      </p>
-
-      <h2>How PGI Helps</h2>
-      <p>
-        Personal Guarantee Insurance reimburses a portion
-        of the enforced guarantee, reducing personal exposure.
-      </p>
-    </div>
-  );
-}
-
-/* ================= CLAIMS ================= */
-
-function Claims() {
-  return (
-    <div className="container">
-      <h1>Claims Process</h1>
-
-      <ol>
-        <li>Business defaults on loan.</li>
-        <li>Lender enforces the personal guarantee.</li>
-        <li>Required documentation submitted.</li>
-        <li>Claim assessed per policy terms.</li>
-        <li>Payment issued.</li>
-      </ol>
-
-      <h2>Required Documents</h2>
-      <ul>
-        <li>Loan agreement</li>
-        <li>Signed personal guarantee</li>
-        <li>Default notice</li>
-        <li>Enforcement documentation</li>
-      </ul>
-    </div>
-  );
-}
-
-/* ================= CASE STUDIES ================= */
-
-function CaseStudies() {
-  return (
-    <div className="container">
-      <h1>Case Studies</h1>
-
-      <div className="card">
-        <h3>Construction Company</h3>
-        <p>Loan: $1,000,000 secured</p>
-        <p>Insured: $800,000</p>
-        <p>Premium: $12,800 annually</p>
-      </div>
-
-      <div className="card">
-        <h3>Retail Startup</h3>
-        <p>Loan: $400,000 unsecured</p>
-        <p>Insured: $320,000</p>
-        <p>Premium: $12,800 annually</p>
-      </div>
-    </div>
-  );
-}
-
-/* ================= CONTACT ================= */
-
-function Contact() {
-  const [form, setForm] = useState<any>({});
-
-  const update = (field: string, value: any) =>
-    setForm({ ...form, [field]: value });
-
-  const submit = async () => {
-    await fetch("https://api.boreal.financial/bi/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
-
-    alert("Message sent.");
-  };
-
-  return (
-    <div className="container">
-      <h1>Contact Boreal Insurance</h1>
-
-      <input placeholder="Name" onChange={(e) => update("name", e.target.value)} />
-      <input placeholder="Email" onChange={(e) => update("email", e.target.value)} />
-      <textarea placeholder="Message" onChange={(e) => update("message", e.target.value)} />
-
-      <button className="button-primary" onClick={submit}>
-        Send
-      </button>
     </div>
   );
 }
@@ -216,18 +128,28 @@ function Contact() {
 
 function Apply() {
   const navigate = useNavigate();
+  const role = getRole();
   const [form, setForm] = useState<any>({ loanType: "Secured" });
 
-  const update = (field: string, value: any) =>
-    setForm({ ...form, [field]: value });
+  const update = (f: string, v: any) =>
+    setForm({ ...form, [f]: v });
 
   const submit = async () => {
     const quote = calculateQuote(form);
 
-    await fetch("https://api.boreal.financial/bi/applications", {
+    const body = {
+      ...form,
+      ...quote,
+      referrerEmail: role === "referrer" ? localStorage.getItem("bi_email") : null
+    };
+
+    await fetch(`${API}/applications`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, ...quote })
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken() || ""}`
+      },
+      body: JSON.stringify(body)
     });
 
     navigate("/quote", { state: { ...form, quote } });
@@ -264,16 +186,14 @@ function Quote() {
 
   return (
     <div className="container">
-      <h1>Your PGI Quote</h1>
+      <h1>Your Quote</h1>
 
       <div className="card">
-        <h2>Insured Amount</h2>
-        <h3>${data.quote.insuredAmount.toLocaleString()}</h3>
+        <h3>Insured Amount</h3>
+        <h2>${data.quote.insuredAmount.toLocaleString()}</h2>
 
-        <h2>Annual Premium</h2>
-        <h3>${data.quote.annualPremium.toLocaleString()}</h3>
-
-        <p>Rate: {(data.quote.rate * 100).toFixed(2)}%</p>
+        <h3>Annual Premium</h3>
+        <h2>${data.quote.annualPremium.toLocaleString()}</h2>
       </div>
     </div>
   );
@@ -282,10 +202,98 @@ function Quote() {
 /* ================= LOGIN ================= */
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("lender");
+  const navigate = useNavigate();
+
+  const login = async () => {
+    const res = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, role })
+    });
+
+    const data = await res.json();
+
+    localStorage.setItem("bi_token", data.token);
+    localStorage.setItem("bi_role", role);
+    localStorage.setItem("bi_email", email);
+
+    navigate(`/${role}-dashboard`);
+  };
+
   return (
     <div className="container">
       <h1>Login</h1>
-      <p>Lender and Referrer authentication handled via BI-server.</p>
+
+      <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <option value="lender">Lender</option>
+        <option value="referrer">Referrer</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <button className="button-primary" onClick={login}>
+        Login
+      </button>
+    </div>
+  );
+}
+
+/* ================= LENDER DASHBOARD ================= */
+
+function LenderDashboard() {
+  const [apps, setApps] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API}/applications`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+      .then((r) => r.json())
+      .then(setApps);
+  }, []);
+
+  return (
+    <div className="container">
+      <h1>Lender Dashboard</h1>
+
+      {apps.map((a) => (
+        <div key={a.id} className="card">
+          <p><strong>{a.business_name}</strong></p>
+          <p>Status: {a.status}</p>
+          <p>Premium: ${Number(a.annual_premium).toLocaleString()}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ================= REFERRER DASHBOARD ================= */
+
+function ReferrerDashboard() {
+  const [commission, setCommission] = useState(0);
+
+  useEffect(() => {
+    fetch(`${API}/commission`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+      .then((r) => r.json())
+      .then((data) => setCommission(Number(data.total)));
+  }, []);
+
+  return (
+    <div className="container">
+      <h1>Referrer Dashboard</h1>
+
+      <div className="card">
+        <h3>Total Commission (10%)</h3>
+        <h2>${commission.toLocaleString()}</h2>
+      </div>
     </div>
   );
 }
@@ -298,15 +306,28 @@ export default function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/what-is-pgi" element={<WhatIsPGI />} />
-        <Route path="/claims" element={<Claims />} />
-        <Route path="/case-studies" element={<CaseStudies />} />
-        <Route path="/contact" element={<Contact />} />
         <Route path="/apply" element={<Apply />} />
         <Route path="/quote" element={<Quote />} />
         <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/lender-dashboard"
+          element={
+            <Protected role="lender">
+              <LenderDashboard />
+            </Protected>
+          }
+        />
+
+        <Route
+          path="/referrer-dashboard"
+          element={
+            <Protected role="referrer">
+              <ReferrerDashboard />
+            </Protected>
+          }
+        />
       </Routes>
-      <Footer />
     </BrowserRouter>
   );
 }
