@@ -2,7 +2,7 @@ body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, sans-serif;
   background: #061326;
-  color: white;
+  color: #e8f0ff;
 }
 
 a {
@@ -11,7 +11,7 @@ a {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: auto;
   padding: 40px 20px;
 }
@@ -20,38 +20,66 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
   padding: 20px 40px;
   background: #041020;
+  border-bottom: 1px solid #17315c;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
 .nav-links {
   display: flex;
-  gap: 24px;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.button-primary,
+.button-secondary,
+button {
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 11px 16px;
+  font-weight: 600;
 }
 
 .button-primary {
   background: #1ccad8;
-  color: black;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-weight: 600;
+  color: #041020;
 }
 
-.hero {
+.button-secondary,
+button {
+  background: #163763;
+  color: #e8f0ff;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 16px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7fc4ff;
+  font-size: 0.8rem;
+}
+
+.button-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 80px 40px;
-  gap: 40px;
-}
-
-.hero img {
-  width: 50%;
-  border-radius: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
 }
 
 .section {
-  padding: 80px 40px;
   background: #081a34;
 }
 
@@ -61,27 +89,43 @@ a {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.stats-grid .card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .card {
   background: #102a52;
-  padding: 30px;
+  padding: 24px;
   border-radius: 12px;
 }
 
-input, textarea {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 6px;
-  border: none;
+.content {
+  max-width: 850px;
 }
 
-footer {
-  padding: 40px;
-  text-align: center;
-  background: #041020;
-  color: #aaa;
+.list {
+  line-height: 1.8;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #32558e;
+  background: #0b1f3d;
+  color: #e8f0ff;
+  box-sizing: border-box;
+}
+
+.quote-summary {
+  white-space: pre-wrap;
 }
