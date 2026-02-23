@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 function Navbar() {
   return (
@@ -17,137 +18,146 @@ function Navbar() {
 
 function Home() {
   return (
-    <>
-      <div className="hero">
-        <div>
-          <h1>Personal Guarantee Insurance</h1>
-          <p>
-            Protect your personal assets when guaranteeing business loans.
-            Designed for Canadian business owners and directors.
-          </p>
-          <Link to="/apply" className="button-primary">Get Protected</Link>
-        </div>
-        <img src="https://images.unsplash.com/photo-1605902711622-cfb43c4437d1" />
+    <div className="hero">
+      <div>
+        <h1>Personal Guarantee Insurance</h1>
+        <p>
+          Protect your personal assets when guaranteeing business loans.
+          Designed for Canadian business owners and directors.
+        </p>
+        <Link to="/apply" className="button-primary">Get Protected</Link>
       </div>
-
-      <div className="section">
-        <div className="container">
-          <h2>Why It Matters</h2>
-          <div className="grid">
-            <div className="card">
-              <h3>Protect Your Home</h3>
-              <p>
-                Most business loans require a personal guarantee.
-                If the business fails, your home and savings are exposed.
-              </p>
-            </div>
-            <div className="card">
-              <h3>Support from Day One</h3>
-              <p>
-                Legal assistance and negotiated settlements if a claim occurs.
-              </p>
-            </div>
-            <div className="card">
-              <h3>Peace of Mind</h3>
-              <p>
-                Focus on growing your business knowing your family assets are protected.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="section section-light">
-        <div className="container">
-          <h2>Real Example</h2>
-          <p>
-            A Calgary manufacturing company borrowed $500,000.
-            Market disruption forced closure.
-            Without insurance, the director would have faced personal bankruptcy.
-            With PGI, legal defense and negotiated settlement reduced exposure by over 60%.
-          </p>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function WhatIsPGI() {
-  return (
-    <div className="container">
-      <h1>What is Personal Guarantee Insurance?</h1>
-      <p>
-        When business loans require directors to personally guarantee repayment,
-        those individuals become personally liable if the company defaults.
-      </p>
-      <p>
-        Personal Guarantee Insurance provides protection, legal support,
-        and negotiated settlements to reduce personal exposure.
-      </p>
-    </div>
-  );
-}
-
-function Claims() {
-  return (
-    <div className="container">
-      <h1>Claims</h1>
-      <p>
-        If a lender calls on your personal guarantee, notify us immediately.
-        We coordinate legal defence and work toward negotiated settlements.
-      </p>
-    </div>
-  );
-}
-
-function Resources() {
-  return (
-    <div className="container">
-      <h1>Resources</h1>
-      <p>Case studies, guides, and educational materials coming soon.</p>
-    </div>
-  );
-}
-
-function Contact() {
-  return (
-    <div className="container">
-      <h1>Contact Us</h1>
-      <form>
-        <input placeholder="Full Name" />
-        <input placeholder="Email" />
-        <textarea placeholder="Message"></textarea>
-        <button className="button-primary">Send Message</button>
-      </form>
+      <img src="https://images.unsplash.com/photo-1605902711622-cfb43c4437d1" />
     </div>
   );
 }
 
 function Apply() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState<any>({});
+
+  const update = (field: string, value: any) =>
+    setForm({ ...form, [field]: value });
+
+  const next = () => setStep(step + 1);
+  const back = () => setStep(step - 1);
+
+  const submit = () => {
+    console.log("Application Submitted:", form);
+    navigate("/thank-you");
+  };
+
   return (
     <div className="container">
-      <h1>Apply for Coverage</h1>
+      <h1>Personal Guarantee Insurance Application</h1>
+      <p>Step {step} of 5</p>
+
+      {step === 1 && (
+        <>
+          <h2>Applicant Details</h2>
+          <input placeholder="Full Legal Name"
+            onChange={(e) => update("name", e.target.value)} />
+          <input placeholder="Email"
+            onChange={(e) => update("email", e.target.value)} />
+          <input placeholder="Phone"
+            onChange={(e) => update("phone", e.target.value)} />
+          <input placeholder="Province"
+            onChange={(e) => update("province", e.target.value)} />
+          <button className="button-primary" onClick={next}>Next</button>
+        </>
+      )}
+
+      {step === 2 && (
+        <>
+          <h2>Business Information</h2>
+          <input placeholder="Business Legal Name"
+            onChange={(e) => update("businessName", e.target.value)} />
+          <input placeholder="Industry"
+            onChange={(e) => update("industry", e.target.value)} />
+          <input placeholder="Years in Operation"
+            onChange={(e) => update("yearsOperating", e.target.value)} />
+          <input placeholder="Annual Revenue (CAD)"
+            onChange={(e) => update("revenue", e.target.value)} />
+          <button onClick={back}>Back</button>
+          <button className="button-primary" onClick={next}>Next</button>
+        </>
+      )}
+
+      {step === 3 && (
+        <>
+          <h2>Loan Details</h2>
+          <input placeholder="Lender Name"
+            onChange={(e) => update("lender", e.target.value)} />
+          <input placeholder="Loan Amount (CAD)"
+            onChange={(e) => update("loanAmount", e.target.value)} />
+          <input placeholder="Type of Facility (LOC, Term Loan, etc.)"
+            onChange={(e) => update("facilityType", e.target.value)} />
+          <input placeholder="Guarantee Percentage (%)"
+            onChange={(e) => update("guaranteePercent", e.target.value)} />
+          <button onClick={back}>Back</button>
+          <button className="button-primary" onClick={next}>Next</button>
+        </>
+      )}
+
+      {step === 4 && (
+        <>
+          <h2>Risk Assessment</h2>
+          <label>Has the business ever defaulted?</label>
+          <select onChange={(e) => update("priorDefault", e.target.value)}>
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+
+          <label>Are there other guarantors?</label>
+          <select onChange={(e) => update("otherGuarantors", e.target.value)}>
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+
+          <label>Are there existing legal disputes?</label>
+          <select onChange={(e) => update("legalDisputes", e.target.value)}>
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+
+          <button onClick={back}>Back</button>
+          <button className="button-primary" onClick={next}>Next</button>
+        </>
+      )}
+
+      {step === 5 && (
+        <>
+          <h2>Review & Submit</h2>
+          <pre style={{ background: "#102a52", padding: 20 }}>
+            {JSON.stringify(form, null, 2)}
+          </pre>
+          <button onClick={back}>Back</button>
+          <button className="button-primary" onClick={submit}>
+            Submit Application
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ThankYou() {
+  return (
+    <div className="container">
+      <h1>Application Received</h1>
       <p>
-        Complete the short application to receive a quote.
+        Thank you. A Boreal Insurance advisor will contact you within 24 hours.
       </p>
     </div>
   );
 }
 
-function LenderLogin() {
+function Placeholder({ title }: { title: string }) {
   return (
     <div className="container">
-      <h1>Lender Login</h1>
-      <p>Secure portal access for lending partners.</p>
-    </div>
-  );
-}
-
-function ReferrerLogin() {
-  return (
-    <div className="container">
-      <h1>Referrer Login</h1>
-      <p>Track referred client applications.</p>
+      <h1>{title}</h1>
+      <p>Content coming soon.</p>
     </div>
   );
 }
@@ -158,13 +168,12 @@ export default function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/what-is-pgi" element={<WhatIsPGI />} />
-        <Route path="/claims" element={<Claims />} />
-        <Route path="/resources" element={<Resources />} />
-        <Route path="/contact" element={<Contact />} />
         <Route path="/apply" element={<Apply />} />
-        <Route path="/lender-login" element={<LenderLogin />} />
-        <Route path="/referrer-login" element={<ReferrerLogin />} />
+        <Route path="/thank-you" element={<ThankYou />} />
+        <Route path="/what-is-pgi" element={<Placeholder title="What is PGI" />} />
+        <Route path="/claims" element={<Placeholder title="Claims" />} />
+        <Route path="/resources" element={<Placeholder title="Resources" />} />
+        <Route path="/contact" element={<Placeholder title="Contact" />} />
       </Routes>
     </BrowserRouter>
   );
