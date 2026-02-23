@@ -1,240 +1,50 @@
-import { useEffect, useMemo, useRef } from "react";
-import axios from "axios";
-import { API_BASE } from "../config";
-import { useNavigate } from "react-router-dom";
-import { safeRequest } from "../api/request";
-import { useApplicationStore } from "../store/useApplicationStore";
-import AccessRestricted from "../components/AccessRestricted";
-import RateLockIndicator from "../components/RateLockIndicator";
-import { validateLenderToken } from "../utils/lenderAuth";
-import { validateBFRedirect } from "../utils/redirectValidation";
-import { track } from "../utils/analytics";
-import { signPayload } from "../utils/signPayload";
-
-interface Props {
-  lenderMode?: boolean;
-}
-
-const QUOTE_TTL_MS = 1000 * 60 * 60;
-
-export default function Application({ lenderMode = false }: Props) {
-  const nav = useNavigate();
-  const store = useApplicationStore();
-  const leadId = localStorage.getItem("biLeadId");
-
-  const params = useMemo(() => new URLSearchParams(window.location.search), []);
-  const lenderToken = params.get("token") || "";
-  const lenderData = lenderMode ? validateLenderToken(lenderToken) : null;
-  const bfToken = params.get("bf_token") || "";
-  const bfData = bfToken ? (validateBFRedirect(bfToken) as Record<string, any> | null) : null;
-  const lastSubmitRef = useRef(0);
-
-  useEffect(() => {
-    if (bfData) {
-      if (bfData.personal && typeof bfData.personal === "object") {
-        store.setPersonal({ ...store.personal, ...bfData.personal });
-      }
-
-      if (bfData.company && typeof bfData.company === "object") {
-        store.setCompany({ ...store.company, ...bfData.company });
-      }
-
-      if (bfData.guarantee && typeof bfData.guarantee === "object") {
-        store.setGuarantee({ ...store.guarantee, ...bfData.guarantee });
-      }
-
-      if (bfData.referralCode) {
-        store.setReferral(String(bfData.referralCode));
-      }
-
-      if (bfData.lenderId) {
-        store.setLender(String(bfData.lenderId));
-      }
-    }
-
-    if (params.get("ref")) {
-      store.setReferral(params.get("ref") || undefined);
-    }
-
-    if (params.get("lender")) {
-      store.setLender(params.get("lender") || undefined);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (lenderMode && store.step < 2) {
-      store.setStep(2);
-    }
-  }, [lenderMode, store.step]);
-
-  useEffect(() => {
-    track(lenderMode ? "lender_application_started" : "application_started");
-  }, [lenderMode]);
-
-  if ((lenderMode && !lenderData) || (bfToken && !bfData)) {
-    return <AccessRestricted />;
-  }
-
-  async function submit() {
-    if (Date.now() - lastSubmitRef.current < 5000) {
-      return;
-    }
-
-    if (store.submitting) {
-      return;
-    }
-
-    if (store.quoteCreatedAt && Date.now() - store.quoteCreatedAt > QUOTE_TTL_MS) {
-      alert("Quote expired. Please refresh.");
-      return;
-    }
-
-    lastSubmitRef.current = Date.now();
-    store.setSubmitting(true);
-
-    try {
-      if (store.referralCode) {
-        await safeRequest(
-          axios.post(`${API_BASE}/bi/referral/validate`, {
-            code: store.referralCode
-          })
-        );
-      }
-
-      const payload = {
-        leadId,
-        personalData: store.personal,
-        companyData: store.company,
-        guaranteeData: store.guarantee,
-        declarations: store.declarations,
-        consentData: store.consent,
-        quoteResult: store.quote,
-        referralCode: store.referralCode,
-        lenderId: store.lenderId ?? lenderData?.lenderId
-      };
-
-      const enrichedPayload = {
-        ...payload,
-        ts: Date.now()
-      };
-
-      const { body, signature } = await signPayload(enrichedPayload);
-
-      await safeRequest(
-        axios.post(`${API_BASE}/bi/apply`, body, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-signature": signature
-          }
-        })
-      );
-
-      track("application_submitted", {
-        lenderMode
-      });
-
-      localStorage.removeItem("bi_app");
-      store.reset();
-      nav("/thank-you");
-    } finally {
-      store.setSubmitting(false);
-    }
-  }
-
+export default function Application() {
   return (
     <div className="container">
-      <h1>Personal Guarantee Insurance</h1>
-      <RateLockIndicator quoteCreatedAt={store.quoteCreatedAt} />
+      <h1>Personal Guarantee Insurance Application</h1>
 
-      {!lenderMode && (
-        <>
-          <p>
-            Complete your application to protect your personal assets when backing business borrowing.
-          </p>
-          {store.quote && (
-            <p>
-              Estimated premium: <strong>{JSON.stringify(store.quote)}</strong>
-            </p>
-          )}
-        </>
-      )}
+      <form className="form">
 
-      {store.step === 1 && !lenderMode && (
-        <>
-          <h3>Personal Details</h3>
-          <input
-            placeholder="Full Name"
-            onChange={(e) =>
-              store.setPersonal({
-                ...store.personal,
-                name: e.target.value
-              })
-            }
-          />
-          <button onClick={() => store.setStep(2)}>Next</button>
-        </>
-      )}
+        <h2>Applicant Details</h2>
+        <input placeholder="Full Legal Name" />
+        <input placeholder="Date of Birth" />
+        <input placeholder="Home Address" />
+        <input placeholder="Email" />
+        <input placeholder="Phone Number" />
 
-      {store.step === 2 && (
-        <>
-          <h3>Company Details</h3>
-          <input
-            placeholder="Company Name"
-            onChange={(e) =>
-              store.setCompany({
-                ...store.company,
-                name: e.target.value
-              })
-            }
-          />
-          <button onClick={() => store.setStep(3)}>Next</button>
-        </>
-      )}
+        <h2>Business Details</h2>
+        <input placeholder="Company Name" />
+        <input placeholder="Incorporation Number" />
+        <input placeholder="Registered Address" />
+        <input placeholder="Trading Address" />
+        <input placeholder="Years Trading" />
+        <input placeholder="Industry" />
+        <input placeholder="Website" />
 
-      {store.step === 3 && (
-        <>
-          <h3>Guarantee Details</h3>
-          <input
-            placeholder="Guarantee Amount"
-            onChange={(e) =>
-              store.setGuarantee({
-                ...store.guarantee,
-                amount: e.target.value
-              })
-            }
-          />
-          <button onClick={() => store.setStep(4)}>Next</button>
-        </>
-      )}
+        <h2>Loan Details</h2>
+        <input placeholder="Lender Name" />
+        <input placeholder="Type of Facility" />
+        <input placeholder="Secured or Unsecured" />
+        <input placeholder="Loan Amount" />
+        <input placeholder="Personal Guarantee Amount" />
+        <input placeholder="Term of Loan" />
+        <input placeholder="Security Provided" />
 
-      {store.step === 4 && (
-        <>
-          <h3>Declarations</h3>
-          <label>
-            <input
-              type="checkbox"
-              onChange={(e) =>
-                store.setDeclarations({
-                  ...store.declarations,
-                  bankrupt: e.target.checked
-                })
-              }
-            />
-            No bankruptcies
-          </label>
-          <button onClick={() => store.setStep(5)}>Review</button>
-        </>
-      )}
+        <h2>Financial Information</h2>
+        <input placeholder="Annual Turnover" />
+        <input placeholder="Net Profit" />
+        <input placeholder="Total Assets" />
+        <input placeholder="Total Liabilities" />
 
-      {store.step === 5 && (
-        <>
-          <h3>Review</h3>
-          <pre>{JSON.stringify(store.personal, null, 2)}</pre>
-          <button onClick={submit} disabled={store.submitting}>
-            {store.submitting ? "Submitting..." : "Submit Application"}
-          </button>
-        </>
-      )}
+        <h2>Declaration</h2>
+        <textarea placeholder="Disclosure of insolvency, previous claims, or director status issues"></textarea>
+
+        <button type="submit" className="btn">Submit Application</button>
+      </form>
+
+      <footer>
+        © Boreal Insurance — Canada
+      </footer>
     </div>
   );
 }
