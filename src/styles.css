@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #020c1c;
+  background: rgb(2 12 28);
   color: white;
 }
 
@@ -15,7 +15,7 @@ body {
   display: flex;
   justify-content: space-between;
   padding: 20px 40px;
-  background: #020c1c;
+  background: rgb(2 12 28);
   border-bottom: 1px solid #1f2a3a;
 }
 
@@ -45,11 +45,12 @@ body {
   margin-top: 20px;
 }
 
-input, textarea {
+input,
+textarea {
   width: 100%;
   margin-bottom: 16px;
   padding: 10px;
-  background: #0c1b2e;
+  background: rgb(12 27 46);
   border: 1px solid #1f2a3a;
   color: white;
 }
@@ -93,13 +94,13 @@ input, textarea {
 .premium-box {
   margin-top: 20px;
   padding: 20px;
-  background: #0c1b2e;
+  background: rgb(12 27 46);
   border: 1px solid #3aa6c1;
   border-radius: 6px;
 }
 
 .review-box {
-  background: #0c1b2e;
+  background: rgb(12 27 46);
   padding: 20px;
   margin-bottom: 20px;
   overflow-x: auto;

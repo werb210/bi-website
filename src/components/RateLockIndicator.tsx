@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Card from "./ui/Card";
 
 interface Props {
   quoteCreatedAt?: number;
@@ -40,8 +41,10 @@ export default function RateLockIndicator({ quoteCreatedAt }: Props) {
   }
 
   return (
-    <p>
-      <strong>Rate locked for 60 minutes</strong> — {formatRemaining(remaining)} remaining
-    </p>
+    <Card className="text-center">
+      <p>
+        <strong>Rate locked for 60 minutes</strong> — {formatRemaining(remaining)} remaining
+      </p>
+    </Card>
   );
 }
