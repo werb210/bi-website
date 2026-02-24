@@ -79,7 +79,7 @@ export default function MayaChat() {
               flex: 1,
               padding: 14,
               overflowY: "auto",
-              background: "#f7f9fc"
+              background: "rgb(247 249 252)"
             }}
           >
             {messages.map((m, i) => (
@@ -91,7 +91,7 @@ export default function MayaChat() {
                 }}
               >
                 <span
-                  className={m.role === "user" ? "inline-block py-2 px-[14px] rounded-[18px] bg-brand-bg text-white" : "inline-block py-2 px-[14px] rounded-[18px] bg-white text-[#111] border border-[#e5e7eb]"}
+                  className={m.role === "user" ? "inline-block py-2 px-[14px] rounded-[18px] bg-brand-bg text-white" : "inline-block py-2 px-[14px] rounded-[18px] bg-white text-black border border-gray-200"}
                 >
                   {m.text}
                 </span>
@@ -108,7 +108,7 @@ export default function MayaChat() {
                 flex: 1,
                 padding: 10,
                 borderRadius: 8,
-                border: "1px solid #ddd"
+                border: "1px solid rgb(221 221 221)"
               }}
             />
             <button

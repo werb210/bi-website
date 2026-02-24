@@ -9,8 +9,8 @@ const config: Config = {
           bg: "rgb(2 12 28)",
           bgAlt: "rgb(7 26 47)",
           surface: "rgb(14 34 57)",
-          accent: "#F2994A",
-          accentHover: "#E8892F"
+          accent: "rgb(242 153 74)",
+          accentHover: "rgb(232 137 47)"
         }
       },
       borderColor: {
