@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDraft } from "../hooks/useDraft";
 import LoadingButton from "../components/LoadingButton";
 import { apiPost } from "../lib/api";
@@ -36,6 +36,11 @@ export default function Application() {
     Number(form.loanAmount) > 0 &&
     required(form.securedType);
 
+
+  useEffect(() => {
+    track("application_started");
+  }, []);
+
   const calc = useMemo(() => {
     const loan = Number(form.loanAmount || 0);
     if (!loan || !form.securedType) return null;
@@ -69,7 +74,9 @@ export default function Application() {
         referrerCode
       });
 
-      track("application_submitted");
+      track("application_submitted", {
+        coverage_type: form.securedType
+      });
       clearDraft();
       setSubmitted(true);
     } catch (e: any) {

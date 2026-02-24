@@ -5,6 +5,9 @@ import App from "./App";
 import ErrorBoundary from "./components/ErrorBoundary";
 import "./styles.css";
 import { processQueue } from "./lib/uploadQueue";
+import { initAnalytics } from "./lib/analytics";
+
+initAnalytics();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

@@ -9,24 +9,9 @@
     <meta name="theme-color" content="#0b1f33" />
     <link rel="preconnect" href="https://api.boreal.financial" />
     <link rel="dns-prefetch" href="https://api.boreal.financial" />
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BIWEBSITE1"></script>
-    <script async src="https://snap.licdn.com/li.lms-analytics/insight.min.js"></script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script type="module">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-BIWEBSITE1');
-
-      window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
-      window._linkedin_data_partner_ids.push("1234567");
-
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js');
-      }
-    </script>
   </body>
 </html>
