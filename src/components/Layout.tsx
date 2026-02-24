@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-brand-bg text-white flex flex-col">
+    <div className="min-h-screen bg-brand-bg text-white flex flex-col bg-gradient-to-b from-[#0b1f35] to-[#081626]">
       <Navbar />
 
       <main className="flex-1">

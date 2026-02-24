@@ -14,13 +14,22 @@ export default function Home() {
 
         <Link
           to="/apply"
-          className="bg-brand-accent hover:bg-brand-accentHover text-white rounded-full h-11 px-6 inline-flex items-center justify-center font-medium"
+          className="h-12 px-8 rounded-full font-semibold tracking-wide transition-all duration-200 bg-[#1e63ff] hover:bg-[#174fd6] shadow-[0_6px_20px_rgba(30,99,255,0.35)] inline-flex items-center justify-center"
         >
           Start Application
         </Link>
 
+        <div className="mt-10 flex flex-wrap gap-6 text-sm text-white/60 justify-center">
+          <span>✓ Canadian-based</span>
+          <span>✓ Policy Underwritten by Purbeck</span>
+          <span>✓ Secured &amp; Unsecured Covered</span>
+          <span>✓ Max Coverage $1,400,000</span>
+        </div>
+
         <PremiumCalculator />
       </Section>
+
+      <div className="border-t border-white/10 my-16"></div>
 
       <Section>
         <h2>Coverage Overview</h2>
@@ -31,6 +40,8 @@ export default function Home() {
           <li>Annual renewable policy</li>
         </ul>
       </Section>
+
+      <div className="border-t border-white/10 my-16"></div>
 
       <Section>
         <h2>Why Choose Boreal</h2>
