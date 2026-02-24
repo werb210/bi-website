@@ -1,4 +1,8 @@
 import { useState } from "react";
+import LoadingButton from "../components/LoadingButton";
+import { apiPost } from "../lib/api";
+import { track } from "../lib/analytics";
+import { emailValid, phoneValid, required } from "../lib/validation";
 
 export default function Contact() {
   const [form, setForm] = useState({
@@ -7,15 +11,27 @@ export default function Contact() {
     email: "",
     phone: ""
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: any) => {
+  const formValid =
+    required(form.name) && emailValid(form.email) && phoneValid(form.phone);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
-    alert("Submitted");
+
+    if (!formValid) {
+      alert("Please enter valid contact details.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await apiPost("/api/contact", form);
+      track("contact_submitted");
+      alert("Submitted");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -46,7 +62,9 @@ export default function Contact() {
         onChange={e => setForm({ ...form, phone: e.target.value })}
       />
 
-      <button type="submit">Submit</button>
+      <LoadingButton type="submit" loading={loading} disabled={!formValid}>
+        Submit
+      </LoadingButton>
     </form>
   );
 }

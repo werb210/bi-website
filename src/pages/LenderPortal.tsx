@@ -1,15 +1,24 @@
 import { useEffect, useState } from "react";
 import BIAuthGate from "../components/BIAuthGate";
+import LoadingButton from "../components/LoadingButton";
+import { apiPost } from "../lib/api";
+import { phoneValid, required } from "../lib/validation";
 
 export default function LenderPortal() {
   const [phone, setPhone] = useState<string | null>(null);
   const [apps, setApps] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<any>({
     client_name: "",
     client_phone: "",
     facilityType: "secured",
     loanAmount: 0,
   });
+
+  const formValid =
+    required(form.client_name) &&
+    phoneValid(form.client_phone) &&
+    Number(form.loanAmount) > 0;
 
   useEffect(() => {
     if (phone) {
@@ -28,10 +37,14 @@ export default function LenderPortal() {
   }
 
   async function createApplication() {
-    await fetch("/api/bi/application/draft", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    if (!formValid) {
+      alert("Please enter valid client details.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await apiPost("/api/bi/application/draft", {
         phone: form.client_phone,
         data: {
           client_name: form.client_name,
@@ -39,10 +52,12 @@ export default function LenderPortal() {
           loanAmount: form.loanAmount,
         },
         createdBy: "lender",
-      }),
-    });
+      });
 
-    loadApps();
+      loadApps();
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (!phone) {
@@ -81,7 +96,9 @@ export default function LenderPortal() {
         onChange={(e) => setForm({ ...form, loanAmount: Number(e.target.value) })}
       />
 
-      <button onClick={createApplication}>Create Application</button>
+      <LoadingButton loading={loading} onClick={createApplication} disabled={!formValid}>
+        Create Application
+      </LoadingButton>
 
       <h2>Your Applications</h2>
 

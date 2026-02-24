@@ -1,16 +1,28 @@
 import { useState, useEffect } from "react";
 import BIAuthGate from "../components/BIAuthGate";
+import LoadingButton from "../components/LoadingButton";
+import { apiPost } from "../lib/api";
+import { track } from "../lib/analytics";
+import { emailValid, phoneValid, required } from "../lib/validation";
 
 export default function ReferrerPortal() {
   const [phone, setPhone] = useState<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
   const [referrals, setReferrals] = useState<any[]>([]);
+  const [loadingAgreement, setLoadingAgreement] = useState(false);
+  const [loadingReferral, setLoadingReferral] = useState(false);
   const [form, setForm] = useState({
     company_name: "",
     full_name: "",
     email: "",
     phone: ""
   });
+
+  const referralValid =
+    required(form.company_name) &&
+    required(form.full_name) &&
+    emailValid(form.email) &&
+    phoneValid(form.phone);
 
   useEffect(() => {
     if (phone) {
@@ -26,30 +38,37 @@ export default function ReferrerPortal() {
   }
 
   async function requestAgreement() {
-    await fetch("/api/bi/referrer/request-agreement", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone })
-    });
+    if (!phone) return;
 
-    alert("Agreement sent for signing.");
+    setLoadingAgreement(true);
+    try {
+      await apiPost("/api/bi/referrer/request-agreement", { phone });
+      alert("Agreement sent for signing.");
+    } finally {
+      setLoadingAgreement(false);
+    }
   }
 
   async function addReferral() {
-    await fetch("/api/bi/referrer/add-referral", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, ...form })
-    });
+    if (!phone || !referralValid) {
+      alert("Please provide valid referral details.");
+      return;
+    }
 
-    setForm({
-      company_name: "",
-      full_name: "",
-      email: "",
-      phone: ""
-    });
-
-    loadProfile();
+    setLoadingReferral(true);
+    try {
+      await apiPost("/api/bi/referrer/add-referral", { phone, ...form });
+      track("referral_submitted");
+      setForm({
+        company_name: "",
+        full_name: "",
+        email: "",
+        phone: ""
+      });
+      loadProfile();
+    } finally {
+      setLoadingReferral(false);
+    }
   }
 
   if (!phone) {
@@ -63,7 +82,9 @@ export default function ReferrerPortal() {
       {!profile?.is_active && (
         <>
           <p>You must sign the referral agreement before submitting referrals.</p>
-          <button onClick={requestAgreement}>Sign Agreement</button>
+          <LoadingButton loading={loadingAgreement} onClick={requestAgreement}>
+            Sign Agreement
+          </LoadingButton>
         </>
       )}
 
@@ -95,7 +116,9 @@ export default function ReferrerPortal() {
             onChange={e => setForm({ ...form, phone: e.target.value })}
           />
 
-          <button onClick={addReferral}>Add To List</button>
+          <LoadingButton loading={loadingReferral} onClick={addReferral} disabled={!referralValid}>
+            Add To List
+          </LoadingButton>
 
           <h2>Your Referrals</h2>
           {referrals.map(r => (

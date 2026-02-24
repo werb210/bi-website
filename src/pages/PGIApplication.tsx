@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import BIAuthGate from "../components/BIAuthGate";
+import LoadingButton from "../components/LoadingButton";
 import { useDraft } from "../hooks/useDraft";
 import { subscribeToPush } from "../hooks/usePush";
+import { apiPost } from "../lib/api";
+import { track } from "../lib/analytics";
+import { required } from "../lib/validation";
 
 const initialFormState = {
   /* Business Info */
@@ -53,6 +57,12 @@ export default function PGIApplication() {
     "bi-application-draft",
     initialFormState
   );
+  const requiredFieldsValid =
+    required(form.legal_name) &&
+    required(form.business_number) &&
+    required(form.director_name) &&
+    required(form.lender_name) &&
+    Number(form.loanAmount) > 0;
 
   useEffect(() => {
     if (phone) {
@@ -72,17 +82,19 @@ export default function PGIApplication() {
   }
 
   async function saveDraft() {
-    const res = await fetch("/api/bi/application/draft", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, data: form })
+    const data = await apiPost<{ id: string }>("/api/bi/application/draft", {
+      phone,
+      data: form
     });
-
-    const data = await res.json();
     setAppId(data.id);
   }
 
   async function submit() {
+    if (!requiredFieldsValid) {
+      alert("Please complete all required application fields before submitting.");
+      return;
+    }
+
     if (!form.consent || !form.terms || !form.privacy) {
       alert("You must accept all compliance confirmations.");
       return;
@@ -90,17 +102,14 @@ export default function PGIApplication() {
 
     setLoading(true);
 
-    await fetch("/api/bi/application/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    await apiPost("/api/bi/application/submit", {
         applicationId: appId,
         facilityType: form.facilityType,
         loanAmount: form.loanAmount,
         bankruptcy: form.bankruptcy
-      })
     });
 
+    track("application_submitted");
     clearDraft();
     setLoading(false);
     setStep(99);
@@ -293,10 +302,14 @@ export default function PGIApplication() {
             I accept Privacy Policy
           </label>
 
-          <button onClick={saveDraft}>Save Draft</button>
-          <button disabled={loading} onClick={submit}>
-            {loading ? "Submitting..." : "Submit Application"}
-          </button>
+          <LoadingButton onClick={saveDraft}>Save Draft</LoadingButton>
+          <LoadingButton
+            loading={loading}
+            disabled={!requiredFieldsValid}
+            onClick={submit}
+          >
+            Submit Application
+          </LoadingButton>
         </>
       )}
 
