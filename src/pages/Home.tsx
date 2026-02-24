@@ -1,64 +1,67 @@
 export default function Home() {
   return (
-    <div className="container">
+    <div>
 
-      <section className="hero">
-        <h1>Protect Your Personal Guarantee</h1>
-        <p>
-          Personal Guarantee Insurance protects Canadian business owners
-          when lenders enforce personal guarantees on business borrowing.
-        </p>
-        <a href="/apply" className="btn">Apply Now</a>
+      {/* HERO */}
+      <section
+        style={{
+          backgroundImage: "url('/hero-business.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          padding: "140px 20px",
+          textAlign: "center",
+          color: "white"
+        }}
+      >
+        <div style={{ background: "rgba(0,0,0,0.65)", padding: 40 }}>
+          <h1 style={{ fontSize: 42 }}>Protect What You’ve Built</h1>
+          <p style={{ fontSize: 20, maxWidth: 700, margin: "20px auto" }}>
+            Personal Guarantee Insurance protects directors and business owners
+            when lenders enforce personal guarantees on business debt.
+          </p>
+          <a href="/apply" className="btn-primary">Apply Now</a>
+        </div>
       </section>
 
-      <section>
+      {/* WHAT IS PGI */}
+      <section className="content-section">
         <h2>What is Personal Guarantee Insurance?</h2>
         <p>
-          When business loans are approved, lenders often require directors
-          or owners to personally guarantee the debt. If the business fails,
-          the lender can pursue personal assets including savings, property,
-          and investments.
+          Personal Guarantee Insurance (PGI) covers up to 80% of an enforced
+          personal guarantee where a business loan defaults and the lender
+          pursues the guarantor personally.
         </p>
         <p>
-          Personal Guarantee Insurance (PGI) covers up to 80% of the enforced
-          guarantee, providing financial protection and peace of mind.
+          We insure both secured and unsecured liabilities.
+        </p>
+        <p style={{ marginTop: 20, fontWeight: 600 }}>
+          Claims must be initiated prior to the commencement of any bankruptcy
+          or insolvency proceedings.
         </p>
       </section>
 
-      <section>
-        <h2>Coverage Details</h2>
-        <ul>
-          <li>Coverage up to 80% of the guaranteed amount</li>
-          <li>Maximum insured amount: $1,400,000 CAD</li>
-          <li>Secured loans: 1.6% annually</li>
-          <li>Unsecured loans: 4.0% annually</li>
-          <li>Annual renewable policy</li>
-        </ul>
-      </section>
+      {/* CASE STUDIES */}
+      <section className="content-section">
+        <h2>Real Protection. Real Scenarios.</h2>
 
-      <section>
-        <h2>Who It’s For</h2>
-        <ul>
-          <li>Business owners and directors</li>
-          <li>Franchise operators</li>
-          <li>Commercial property investors</li>
-          <li>Construction and contracting firms</li>
-          <li>Growing SMEs with bank facilities</li>
-        </ul>
-      </section>
+        <div className="case-grid">
+          <div>
+            <h3>Construction Firm</h3>
+            <p>
+              $1.2M secured loan. Lender enforced personal guarantee following
+              downturn. Policy covered 80% of exposure.
+            </p>
+          </div>
 
-      <section>
-        <h2>Example</h2>
-        <p>
-          A $1,000,000 unsecured loan with a personal guarantee of $800,000
-          would carry a $32,000 annual premium. If enforced, the policy can
-          cover up to 80% of the loss.
-        </p>
+          <div>
+            <h3>Franchise Operator</h3>
+            <p>
+              $750k unsecured facility. Guarantee enforced after closure.
+              Claim submitted prior to insolvency filing and paid.
+            </p>
+          </div>
+        </div>
       </section>
-
-      <footer>
-        © Boreal Insurance — Canada
-      </footer>
 
     </div>
   );
