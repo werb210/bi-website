@@ -1,38 +1,25 @@
-import { Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import Application from "./pages/Application";
 import Claims from "./pages/Claims";
 import Contact from "./pages/Contact";
-import LenderLogin from "./pages/LenderLogin";
-import ReferrerLogin from "./pages/ReferrerLogin";
-import MayaChat from "./components/MayaChat";
-import MayaAnalytics from "./pages/MayaAnalytics";
-import AdminLogin from "./pages/AdminLogin";
-import AdminGuard from "./components/AdminGuard";
+import LenderPortal from "./pages/LenderPortal";
+import ReferrerPortal from "./pages/ReferrerPortal";
+import PGIApplication from "./pages/PGIApplication";
+import FloatingChat from "./components/FloatingChat";
 
 export default function App() {
   return (
-    <>
-      <Navbar />
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/apply" element={<Application />} />
         <Route path="/claims" element={<Claims />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/lender-login" element={<LenderLogin />} />
-        <Route path="/referrer-login" element={<ReferrerLogin />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route
-          path="/admin/maya-analytics"
-          element={
-            <AdminGuard>
-              <MayaAnalytics />
-            </AdminGuard>
-          }
-        />
+        <Route path="/lender-login" element={<LenderPortal />} />
+        <Route path="/referrer-login" element={<ReferrerPortal />} />
+        <Route path="/apply" element={<PGIApplication />} />
       </Routes>
-      <MayaChat />
-    </>
+
+      <FloatingChat />
+    </BrowserRouter>
   );
 }
