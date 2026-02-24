@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import BIAuthGate from "../components/BIAuthGate";
 import { useDraft } from "../hooks/useDraft";
+import { subscribeToPush } from "../hooks/usePush";
 
 const initialFormState = {
   /* Business Info */
@@ -307,6 +308,12 @@ export default function PGIApplication() {
             Your application has been received and moved to Documents Pending. Our team will
             package it and forward to Purbeck.
           </p>
+          <button
+            onClick={subscribeToPush}
+            className="bg-brand-accent hover:bg-brand-accentHover text-white rounded-full h-11 px-6 font-medium mt-6"
+          >
+            Enable Status Notifications
+          </button>
         </>
       )}
     </div>
