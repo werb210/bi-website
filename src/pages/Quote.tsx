@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../config";
 import { safeRequest } from "../api/request";
-import { track } from "../utils/analytics";
+import { track } from "../lib/analytics";
 
 export default function Quote() {
   const nav = useNavigate();

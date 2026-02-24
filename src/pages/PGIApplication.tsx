@@ -66,6 +66,7 @@ export default function PGIApplication() {
 
   useEffect(() => {
     if (phone) {
+      track("application_started");
       resume();
     }
   }, [phone]);
@@ -109,7 +110,9 @@ export default function PGIApplication() {
         bankruptcy: form.bankruptcy
     });
 
-    track("application_submitted");
+    track("application_submitted", {
+      coverage_type: form.facilityType
+    });
     clearDraft();
     setLoading(false);
     setStep(99);

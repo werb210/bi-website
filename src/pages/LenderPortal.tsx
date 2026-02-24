@@ -3,6 +3,7 @@ import BIAuthGate from "../components/BIAuthGate";
 import LoadingButton from "../components/LoadingButton";
 import { apiPost } from "../lib/api";
 import { phoneValid, required } from "../lib/validation";
+import { track } from "../lib/analytics";
 
 export default function LenderPortal() {
   const [phone, setPhone] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export default function LenderPortal() {
         createdBy: "lender",
       });
 
+      track("lender_application_submitted");
       loadApps();
     } finally {
       setLoading(false);
