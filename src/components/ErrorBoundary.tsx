@@ -1,31 +1,31 @@
 import React from "react";
-import { reportError } from "../utils/errorReporter";
 
-type ErrorBoundaryProps = {
-  children: React.ReactNode;
-};
-
-type ErrorBoundaryState = {
+interface State {
   hasError: boolean;
-};
+}
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false };
-  }
+export default class ErrorBoundary extends React.Component<
+  React.PropsWithChildren,
+  State
+> {
+  state: State = { hasError: false };
 
   static getDerivedStateFromError() {
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error) {
-    reportError(error);
+  componentDidCatch(error: any) {
+    console.error("App crash:", error);
   }
 
   render() {
     if (this.state.hasError) {
-      return <div>Something went wrong. Please refresh.</div>;
+      return (
+        <div style={{ padding: 40, textAlign: "center" }}>
+          <h2>Something went wrong.</h2>
+          <p>Please refresh or try again later.</p>
+        </div>
+      );
     }
 
     return this.props.children;

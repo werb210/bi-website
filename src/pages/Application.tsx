@@ -1,5 +1,9 @@
 import { useMemo, useState } from "react";
 import { useDraft } from "../hooks/useDraft";
+import LoadingButton from "../components/LoadingButton";
+import { apiPost } from "../lib/api";
+import { track } from "../lib/analytics";
+import { emailValid, required } from "../lib/validation";
 
 const initialFormState = {
   firstName: "",
@@ -16,6 +20,7 @@ export default function Application() {
   );
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [hasRestoredDraft] = useState(() => {
     if (typeof window === "undefined") return false;
     return Boolean(localStorage.getItem("bi-application-draft"));
@@ -25,11 +30,11 @@ export default function Application() {
     setForm((p: typeof initialFormState) => ({ ...p, [k]: v }));
 
   const valid =
-    form.firstName &&
-    form.lastName &&
-    form.email.includes("@") &&
+    required(form.firstName) &&
+    required(form.lastName) &&
+    emailValid(form.email) &&
     Number(form.loanAmount) > 0 &&
-    form.securedType;
+    required(form.securedType);
 
   const calc = useMemo(() => {
     const loan = Number(form.loanAmount || 0);
@@ -50,29 +55,27 @@ export default function Application() {
 
     try {
       setError("");
+      setLoading(true);
 
       const source = localStorage.getItem("bi_source") || "direct";
       const lenderEmail = localStorage.getItem("bi_lender_email");
       const referrerCode = localStorage.getItem("bi_referrer_code");
 
-      const res = await fetch("/api/pgi-application", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          loanAmount: Number(form.loanAmount),
-          source,
-          lenderEmail,
-          referrerCode
-        })
+      await apiPost("/api/pgi-application", {
+        ...form,
+        loanAmount: Number(form.loanAmount),
+        source,
+        lenderEmail,
+        referrerCode
       });
 
-      if (!res.ok) throw new Error("Submission failed");
-
+      track("application_submitted");
       clearDraft();
       setSubmitted(true);
     } catch (e: any) {
       setError(e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -140,14 +143,15 @@ export default function Application() {
         </div>
       )}
 
-      <button
+      <LoadingButton
         className="btn"
         disabled={!valid}
         style={{ opacity: valid ? 1 : 0.5 }}
+        loading={loading}
         onClick={submit}
       >
         Submit Application
-      </button>
+      </LoadingButton>
     </div>
   );
 }
