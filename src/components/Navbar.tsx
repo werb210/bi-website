@@ -16,7 +16,7 @@ export default function Navbar() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8 text-sm text-white/80">
-          <Link to="/coverage" className="hover:text-white">
+          <Link to="/apply" className="hover:text-white">
             Coverage
           </Link>
           <Link to="/how-it-works" className="hover:text-white">
@@ -45,7 +45,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {open && (
         <div className="md:hidden bg-brand-bgAlt border-t border-subtle px-6 py-4 space-y-4">
-          <Link to="/coverage" className="block text-white/80 hover:text-white">
+          <Link to="/apply" className="block text-white/80 hover:text-white">
             Coverage
           </Link>
           <Link to="/how-it-works" className="block text-white/80 hover:text-white">
