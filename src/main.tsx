@@ -7,6 +7,10 @@ captureCampaign()
 captureReferral()
 
 import { captureReferral } from "./lib/referralTracker"
+import { flushEvents } from "./lib/marketing/eventQueue"
+
+window.addEventListener("load", flushEvents)
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
