@@ -1,3 +1,4 @@
+import { trackCallIntent } from "../lib/marketing/callTracking"
 import { Link } from "react-router-dom";
 import PremiumCalculator from "../components/PremiumCalculator";
 import Section from "../components/ui/Section";
@@ -14,6 +15,7 @@ export default function Home() {
 
         <Link
           to="/apply"
+          onClick={trackCallIntent}
           className="h-12 px-8 rounded-full font-semibold tracking-wide transition-all duration-200 bg-[#1e63ff] hover:bg-[#174fd6] shadow-[0_6px_20px_rgba(30,99,255,0.35)] inline-flex items-center justify-center"
         >
           Start Application
@@ -54,7 +56,7 @@ export default function Home() {
       </Section>
 
       <div className="mobile-cta">
-        <Link to="/apply">Apply Now</Link>
+        <Link to="/apply" onClick={trackCallIntent}>Apply Now</Link>
       </div>
     </>
   );

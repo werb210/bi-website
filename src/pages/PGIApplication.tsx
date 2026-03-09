@@ -1,3 +1,4 @@
+import { notifyAIConversion } from "../lib/marketing/aiConversion"
 import { trackConversion } from "../lib/conversion"
 import { useEffect, useState } from "react";
 import BIAuthGate from "../components/BIAuthGate";
@@ -114,6 +115,7 @@ export default function PGIApplication() {
     track("application_submitted", {
       coverage_type: form.facilityType
     });
+    notifyAIConversion("application", form.loanAmount);
     clearDraft();
     setLoading(false);
     setStep(99);
