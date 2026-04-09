@@ -6,6 +6,7 @@ import LoadingButton from "../components/LoadingButton";
 import { useDraft } from "../hooks/useDraft";
 import { subscribeToPush } from "../hooks/usePush";
 import { apiPost } from "../lib/api";
+import { apiRequest } from "../api/request";
 import { track } from "../lib/analytics";
 import { required } from "../lib/validation";
 
@@ -74,15 +75,12 @@ export default function PGIApplication() {
   }, [phone]);
 
   async function resume() {
-    const res = await fetch(`/api/v1/application/by-phone?phone=${phone}`, {
-      credentials: "include"
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data) {
-        setAppId(data.id);
-        setForm(prev => ({ ...prev, ...data.data }));
-      }
+    const data = await apiRequest<{ id: string; data: Partial<typeof initialFormState> } | null>(
+      `/api/v1/application/by-phone?phone=${phone}`
+    ).catch(() => null);
+    if (data) {
+      setAppId(data.id);
+      setForm(prev => ({ ...prev, ...data.data }));
     }
   }
 

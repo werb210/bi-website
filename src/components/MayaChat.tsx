@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiPost } from "../api/request";
 
 export default function MayaChat() {
   const mayaEnabled = true;
@@ -22,14 +23,9 @@ export default function MayaChat() {
     setMessages(prev => [...prev, userMessage]);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/maya/message`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ message: input })
+      const data = await apiPost<{ reply?: string }>("/api/v1/maya/message", {
+        message: input
       });
-
-      const data = await res.json();
 
       setMessages(prev => [
         ...prev,

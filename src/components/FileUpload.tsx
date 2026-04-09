@@ -1,5 +1,6 @@
 import { DragEvent, useState } from "react";
 import { enqueueUpload } from "../lib/uploadQueue";
+import { apiRequest } from "../api/request";
 
 interface Props {
   appId: string;
@@ -80,13 +81,10 @@ export default function FileUpload({ appId, onUploaded }: Props) {
         return;
       }
 
-      const response = await fetch(`/api/v1/application/${appId}/documents`, {
+      const data = await apiRequest(`/api/v1/application/${appId}/documents`, {
         method: "POST",
         body: formData,
-        credentials: "include"
       });
-
-      const data = await response.json().catch(() => null);
       onUploaded?.(data);
     } finally {
       setUploading(false);

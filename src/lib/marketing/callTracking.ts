@@ -1,8 +1,5 @@
+import { apiPost } from "../../api/request";
+
 export function trackCallIntent(){
-
-  fetch("/api/v1/call-intent",{
-    method:"POST",
-    credentials:"include"
-  }).catch(()=>{})
-
+  void apiPost("/api/v1/call-intent", {}).catch(()=>{})
 }

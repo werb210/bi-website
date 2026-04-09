@@ -1,14 +1,11 @@
+import { apiPost } from "../../api/request";
+
 export function notifyAIConversion(type:string,value:number){
 
-  fetch("/api/v1/ai-conversion",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
+  void apiPost("/api/v1/ai-conversion", {
       type,
       value,
       timestamp:Date.now()
-    }),
-    credentials:"include"
-  }).catch(()=>{})
+    }).catch(()=>{})
 
 }

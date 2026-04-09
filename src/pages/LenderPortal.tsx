@@ -2,12 +2,22 @@ import { useEffect, useState } from "react";
 import BIAuthGate from "../components/BIAuthGate";
 import LoadingButton from "../components/LoadingButton";
 import { apiPost } from "../lib/api";
+import { apiRequest } from "../api/request";
 import { phoneValid, required } from "../lib/validation";
 import { track } from "../lib/analytics";
 
+interface LenderApplication {
+  id: string;
+  primary_contact_name?: string;
+  stage?: string;
+  premium_calc?: {
+    annualPremium?: number;
+  };
+}
+
 export default function LenderPortal() {
   const [phone, setPhone] = useState<string | null>(null);
-  const [apps, setApps] = useState<any[]>([]);
+  const [apps, setApps] = useState<LenderApplication[]>([]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<any>({
     client_name: "",
@@ -32,10 +42,7 @@ export default function LenderPortal() {
       return;
     }
 
-    const res = await fetch(`/api/v1/lender/applications?lenderUserId=${phone}`, {
-      credentials: "include"
-    });
-    const data = await res.json();
+    const data = await apiRequest<LenderApplication[]>(`/api/v1/lender/applications?lenderUserId=${phone}`);
     setApps(data);
   }
 

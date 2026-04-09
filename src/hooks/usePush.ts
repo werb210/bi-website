@@ -1,3 +1,5 @@
+import { apiPost } from "../api/request";
+
 export async function subscribeToPush() {
   if (!("serviceWorker" in navigator)) {
     return;
@@ -15,10 +17,5 @@ export async function subscribeToPush() {
     applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY
   });
 
-  await fetch("/api/v1/push/subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(subscription),
-    credentials: "include"
-  });
+  await apiPost("/api/v1/push/subscribe", subscription);
 }
