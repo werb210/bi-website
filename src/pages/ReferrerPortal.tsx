@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import BIAuthGate from "../components/BIAuthGate";
 import LoadingButton from "../components/LoadingButton";
 import { apiPost } from "../lib/api";
+import { apiRequest } from "../api/request";
 import { track } from "../lib/analytics";
 import { emailValid, phoneValid, required } from "../lib/validation";
 
@@ -32,10 +33,9 @@ export default function ReferrerPortal() {
   }, [phone]);
 
   async function loadProfile() {
-    const res = await fetch(`/api/v1/referrer/profile?phone=${phone}`, {
-      credentials: "include"
-    });
-    const data = await res.json();
+    const data = await apiRequest<{ profile: unknown; referrals?: unknown[] }>(
+      `/api/v1/referrer/profile?phone=${phone}`
+    );
     setProfile(data.profile);
     setReferrals(data.referrals || []);
   }

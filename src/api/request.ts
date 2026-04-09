@@ -20,13 +20,21 @@ export async function apiCall<T = unknown>(
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const res = await fetch(`${getApiBaseUrl()}${path}`, {
+    const url = path.startsWith("http://") || path.startsWith("https://")
+      ? path
+      : `${getApiBaseUrl()}${path}`;
+    const isFormData = options.body instanceof FormData;
+    const headers: HeadersInit = isFormData
+      ? { ...(options.headers || {}) }
+      : {
+          "Content-Type": "application/json",
+          ...(options.headers || {}),
+        };
+
+    const res = await fetch(url, {
       ...options,
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-      },
+      headers,
       credentials: "include",
     });
 

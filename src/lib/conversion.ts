@@ -1,4 +1,6 @@
-export function trackConversion(event: string, data: any = {}) {
+import { apiPost } from "../api/request";
+
+export function trackConversion(event: string, data: Record<string, unknown> = {}) {
 
   const payload = {
     event,
@@ -8,11 +10,6 @@ export function trackConversion(event: string, data: any = {}) {
     data
   }
 
-  fetch("/api/v1/marketing-event", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-    credentials: "include"
-  }).catch(()=>{})
+  void apiPost("/api/v1/marketing-event", payload).catch(() => {});
 
 }

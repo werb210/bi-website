@@ -7,7 +7,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { validateEnv } from "./config/envGuard";
-import { getApiBaseUrl } from "./api/request";
+import { apiRequest } from "./api/request";
 import { initAnalytics } from "./lib/analytics";
 import { captureCampaign } from "./lib/campaignTracker";
 import { flushEvents } from "./lib/marketing/eventQueue";
@@ -15,13 +15,7 @@ import { captureReferral } from "./lib/referralTracker";
 import { processQueue } from "./lib/uploadQueue";
 
 async function assertApiHealth() {
-  const response = await fetch(`${getApiBaseUrl()}/api/v1/health`, {
-    credentials: "include"
-  });
-
-  if (!response.ok) {
-    throw new Error(`API health check failed (${response.status})`);
-  }
+  await apiRequest("/api/v1/health");
 }
 
 async function bootstrap() {

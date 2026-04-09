@@ -1,9 +1,11 @@
+import { apiPost } from "../../api/request";
+
 interface MarketingEvent {
   event: string
   timestamp: number
-  campaign?: any
+  campaign?: Record<string, unknown>
   referrer?: string | null
-  data?: any
+  data?: Record<string, unknown>
 }
 
 const QUEUE_KEY = "bi_event_queue"
@@ -23,12 +25,7 @@ export function flushEvents() {
 
   if(queue.length === 0) return
 
-  fetch("/api/v1/marketing-events/batch", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(queue),
-    credentials: "include"
-  }).catch(()=>{})
+  void apiPost("/api/v1/marketing-events/batch", queue).catch(()=>{})
 
   localStorage.removeItem(QUEUE_KEY)
 }

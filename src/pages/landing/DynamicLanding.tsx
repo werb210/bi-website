@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { apiRequest } from "../../api/request";
 
 export default function DynamicLanding() {
 
@@ -9,8 +10,7 @@ export default function DynamicLanding() {
     const params = new URLSearchParams(window.location.search)
     const campaign = params.get("utm_campaign")
 
-    fetch("/api/v1/landing?campaign="+campaign, { credentials: "include" })
-      .then(r=>r.json())
+    apiRequest("/api/v1/landing?campaign="+campaign)
       .then(setContent)
       .catch(()=>{})
 

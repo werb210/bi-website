@@ -1,3 +1,5 @@
+import { apiRequest } from "../api/request";
+
 const DB_NAME = "bi-upload-queue";
 const STORE_NAME = "uploads";
 
@@ -54,15 +56,10 @@ export async function processQueue() {
 
   for (const item of all) {
     try {
-      const response = await fetch(item.url, {
+      await apiRequest(item.url, {
         method: "POST",
         body: item.formData,
-        credentials: "include"
       });
-
-      if (!response.ok) {
-        continue;
-      }
 
       if (item.id == null) {
         continue;
