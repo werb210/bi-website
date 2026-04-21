@@ -54,7 +54,7 @@ export default function LenderPortal() {
 
     setLoading(true);
     try {
-      await apiPost("/api/v1/application/draft", {
+      await apiPost("/api/v1/bi/application/draft", {
         phone: form.client_phone,
         data: {
           client_name: form.client_name,
@@ -62,6 +62,8 @@ export default function LenderPortal() {
           loanAmount: form.loanAmount,
         },
         createdBy: "lender",
+      }, {
+        credentials: "include",
       });
 
       track("lender_application_submitted");

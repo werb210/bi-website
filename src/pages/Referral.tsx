@@ -1,4 +1,5 @@
 import { FormEvent, useMemo, useState } from "react";
+import { apiPost } from "../lib/api";
 
 type ReferralForm = {
   company: string;
@@ -19,6 +20,8 @@ const initialForm: ReferralForm = {
 export default function Referral() {
   const [form, setForm] = useState<ReferralForm>(initialForm);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const payload = useMemo(
     () => ({
@@ -30,13 +33,21 @@ export default function Referral() {
     [form],
   );
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // TODO: Replace with CRM integration endpoint when available.
-    console.log("SEND TO CRM:", payload);
-    setSubmitted(true);
-    setForm(initialForm);
+    setError("");
+    setLoading(true);
+    try {
+      await apiPost("/api/v1/referrals", payload);
+      setSubmitted(true);
+      setForm(initialForm);
+    } catch {
+      setSubmitted(false);
+      setError("Unable to submit referral right now. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -84,14 +95,15 @@ export default function Referral() {
             className="rounded border border-white/20 bg-[#0A2348] px-3 py-2"
           />
 
-          <button type="submit" className="rounded bg-blue-600 p-3 font-semibold transition hover:bg-blue-700">
-            Add Referral
+          <button type="submit" disabled={loading} className="rounded bg-blue-600 p-3 font-semibold transition hover:bg-blue-700 disabled:opacity-60">
+            {loading ? "Submitting..." : "Add Referral"}
           </button>
         </form>
 
         {submitted && (
           <p className="mt-4 text-sm text-green-300">Referral submitted and queued for CRM sync.</p>
         )}
+        {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
       </div>
     </main>
   );
