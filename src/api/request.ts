@@ -1,21 +1,30 @@
-const API = import.meta.env.VITE_API_URL;
+const API_URL =
+  import.meta.env.VITE_API_URL || "https://server.boreal.financial";
 
-export async function apiRequest(path: string, options: RequestInit = {}) {
-  if (!API) {
-    throw new Error("VITE_API_URL not set");
-  }
+export function getApiBaseUrl() {
+  return API_URL;
+}
 
-  const res = await fetch(`${API}${path}`, {
+export async function apiRequest<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
     headers: {
       "Content-Type": "application/json",
-      ...(options.headers || {})
+      ...(options.headers || {}),
     },
-    ...options
+    ...options,
   });
 
   if (!res.ok) {
     throw new Error(`API error ${res.status}`);
   }
 
-  return res.json();
+  return res.json() as Promise<T>;
+}
+
+export function apiPost<T = unknown>(path: string, body: unknown, options: RequestInit = {}) {
+  return apiRequest<T>(path, {
+    method: "POST",
+    body: JSON.stringify(body),
+    ...options,
+  });
 }
