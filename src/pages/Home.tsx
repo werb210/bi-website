@@ -1,63 +1,50 @@
-import { trackCallIntent } from "../lib/marketing/callTracking"
 import { Link } from "react-router-dom";
-import PremiumCalculator from "../components/PremiumCalculator";
-import Section from "../components/ui/Section";
+
+const cards = [
+  {
+    title: "What is PGI?",
+    body: "Personal Guarantee Insurance (PGI) covers a portion of a signed personal guarantee if a business cannot repay a loan. It helps owners de-risk growth financing.",
+  },
+  {
+    title: "Who is it for?",
+    body: "Canadian business owners, directors, and entrepreneurs who are asked by lenders to provide personal guarantees for business financing.",
+  },
+  {
+    title: "Coverage",
+    body: "Coverage can protect up to 80% of an enforceable personal guarantee, with limits up to $1.4M depending on lender requirements.",
+  },
+  {
+    title: "Why it matters",
+    body: "PGI helps separate business borrowing risk from personal wealth, reducing pressure on household assets while improving access to capital.",
+  },
+];
 
 export default function Home() {
   return (
-    <>
-      <Section>
-        <h1>Protect Your Personal Assets</h1>
-        <p>
-          Insurance for Canadian business owners with personal guarantees.
-          Protect your home, savings, and investments.
+    <main className="min-h-screen bg-[#07182E] px-6 py-12 text-white md:px-10">
+      <section className="mx-auto max-w-5xl text-center">
+        <h1 className="mb-6 text-4xl font-bold">Protect Your Personal Assets</h1>
+        <p className="mb-8 text-lg text-white/90">
+          Personal Guarantee Insurance (PGI) protects Canadian business owners from
+          personal financial loss when providing guarantees for business loans.
         </p>
 
         <Link
-          to="/apply"
-          onClick={trackCallIntent}
-          className="h-12 px-8 rounded-full font-semibold tracking-wide transition-all duration-200 bg-[#1e63ff] hover:bg-[#174fd6] shadow-[0_6px_20px_rgba(30,99,255,0.35)] inline-flex items-center justify-center"
+          to="/lender/quote"
+          className="inline-flex rounded bg-blue-600 px-6 py-3 text-lg font-semibold transition hover:bg-blue-700"
         >
-          Start Application
+          Get a Quote
         </Link>
+      </section>
 
-        <div className="mt-10 flex flex-wrap gap-6 text-sm text-white/60 justify-center">
-          <span>✓ Canadian-based</span>
-          <span>✓ Policy Underwritten by Purbeck</span>
-          <span>✓ Secured &amp; Unsecured Covered</span>
-          <span>✓ Max Coverage $1,400,000</span>
-        </div>
-
-        <PremiumCalculator />
-      </Section>
-
-      <div className="border-t border-white/10 my-16"></div>
-
-      <Section>
-        <h2>Coverage Overview</h2>
-        <ul>
-          <li>Up to 80% coverage of enforced guarantee</li>
-          <li>Maximum insured: $1,400,000 CAD</li>
-          <li>Secured & unsecured facilities</li>
-          <li>Annual renewable policy</li>
-        </ul>
-      </Section>
-
-      <div className="border-t border-white/10 my-16"></div>
-
-      <Section>
-        <h2>Why Choose Boreal</h2>
-        <div className="badges">
-          <div className="badge">Canadian Business Focused</div>
-          <div className="badge">Specialist Guarantee Coverage</div>
-          <div className="badge">Trusted UK Underwriter</div>
-          <div className="badge">Secure Application Process</div>
-        </div>
-      </Section>
-
-      <div className="mobile-cta">
-        <Link to="/apply" onClick={trackCallIntent}>Apply Now</Link>
-      </div>
-    </>
+      <section className="mx-auto mt-16 grid max-w-5xl gap-8 md:grid-cols-2">
+        {cards.map((card) => (
+          <article key={card.title} className="rounded-lg border border-white/10 bg-white/5 p-6">
+            <h2 className="mb-3 text-2xl font-semibold">{card.title}</h2>
+            <p className="text-white/85">{card.body}</p>
+          </article>
+        ))}
+      </section>
+    </main>
   );
 }

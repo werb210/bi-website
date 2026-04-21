@@ -1,24 +1,19 @@
-import React from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Header from "./components/Header";
+import Home from "./pages/Home";
+import Lender from "./pages/Lender";
+import Referral from "./pages/Referral";
 
 export default function App() {
-  const api = import.meta.env.VITE_API_URL;
-  const hasSubmit = Boolean(import.meta.env.VITE_SUBMIT_SECRET);
-
   return (
-    <div style={{ padding: 40, fontFamily: "Arial" }}>
-      <h1>Boreal Insurance</h1>
-
-      <p><strong>API:</strong> {api || "NOT SET"}</p>
-
-      {!hasSubmit && (
-        <div style={{ marginTop: 20, color: "orange" }}>
-          Submission disabled (missing VITE_SUBMIT_SECRET)
-        </div>
-      )}
-
-      <div style={{ marginTop: 20 }}>
-        App is running.
-      </div>
-    </div>
+    <BrowserRouter>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/referral" element={<Referral />} />
+        <Route path="/lender/*" element={<Lender />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
