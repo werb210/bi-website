@@ -1,12 +1,9 @@
 import { Link } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 export default function Quote() {
   const [amount, setAmount] = useState(500000);
-  const [coverage, setCoverage] = useState(80);
   const [type, setType] = useState("secured");
-
-  const insuredAmount = useMemo(() => amount * (coverage / 100), [amount, coverage]);
 
   return (
     <main className="min-h-screen bg-[#07182E] px-6 py-10 text-white">
@@ -21,18 +18,7 @@ export default function Quote() {
           className="mb-4 w-full rounded p-2 text-black"
         />
 
-        <label className="mb-1 block">Coverage %: {coverage}%</label>
-        <input
-          type="range"
-          min={0}
-          max={80}
-          step={1}
-          value={coverage}
-          onChange={(e) => setCoverage(Math.min(80, Number(e.target.value)))}
-          className="mb-4 w-full"
-        />
-
-        <label className="mb-1 block">Loan Type</label>
+        <label className="mb-1 block">Facility Type</label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
@@ -44,7 +30,7 @@ export default function Quote() {
 
         <div className="mt-4 space-y-2">
           <p>Loan Type: {type === "secured" ? "Secured" : "Unsecured"}</p>
-          <p>Insured Amount: ${insuredAmount.toLocaleString()}</p>
+          <p className="text-white/80">Indicative quote calculations are generated server-side after application submission.</p>
         </div>
 
         <Link

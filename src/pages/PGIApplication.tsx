@@ -1,5 +1,3 @@
-import { notifyAIConversion } from "../lib/marketing/aiConversion"
-import { trackConversion } from "../lib/conversion"
 import { useEffect, useState } from "react";
 import BIAuthGate from "../components/BIAuthGate";
 import LoadingButton from "../components/LoadingButton";
@@ -31,7 +29,6 @@ const initialFormState = {
   facilityType: "secured",
   lender_name: "",
   loanAmount: 0,
-  guarantee_amount: 0,
 
   /* Financial */
   annual_turnover: 0,
@@ -51,6 +48,10 @@ export default function PGIApplication() {
   const [step, setStep] = useState(1);
   const [appId, setAppId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pgiStatus, setPgiStatus] = useState<string>("pending");
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [hasRestoredDraft] = useState(() => {
     if (typeof window === "undefined") return false;
     return Boolean(localStorage.getItem("bi-application-draft"));
@@ -70,26 +71,80 @@ export default function PGIApplication() {
   useEffect(() => {
     if (phone) {
       track("application_started");
-      resume();
+      void resume();
     }
   }, [phone]);
 
+  useEffect(() => {
+    if (step !== 99 || !appId) {
+      return;
+    }
+
+    const poll = async () => {
+      const statusResponse = await apiRequest<{ pgiStatus?: string }>(
+        `/api/v1/bi/applications/${appId}`,
+        { credentials: "include" }
+      ).catch(() => null);
+
+      if (statusResponse?.pgiStatus) {
+        setPgiStatus(statusResponse.pgiStatus);
+      }
+    };
+
+    void poll();
+    const interval = window.setInterval(() => {
+      void poll();
+    }, 10000);
+
+    return () => window.clearInterval(interval);
+  }, [step, appId]);
+
   async function resume() {
     const data = await apiRequest<{ id: string; data: Partial<typeof initialFormState> } | null>(
-      `/api/v1/application/by-phone?phone=${phone}`
+      `/api/v1/bi/application/by-phone?phone=${phone}`,
+      { credentials: "include" }
     ).catch(() => null);
     if (data) {
       setAppId(data.id);
       setForm(prev => ({ ...prev, ...data.data }));
+      clearDraft();
     }
   }
 
   async function saveDraft() {
-    const data = await apiPost<{ id: string }>("/api/v1/application/draft", {
+    const data = await apiPost<{ id: string }>("/api/v1/bi/application/draft", {
       phone,
       data: form
+    }, {
+      credentials: "include"
     });
     setAppId(data.id);
+  }
+
+  async function uploadDocuments() {
+    if (!appId || uploadFiles.length === 0 || uploading) {
+      return;
+    }
+
+    setUploading(true);
+    setUploadProgress(10);
+
+    const payload = new FormData();
+    uploadFiles.forEach((selected) => {
+      payload.append("files", selected);
+    });
+
+    try {
+      await apiPost(`/api/v1/bi/application/${appId}/documents`, payload, {
+        credentials: "include",
+      });
+      setUploadProgress(100);
+    } catch {
+      setUploadProgress(0);
+      alert("Unable to upload documents. Please retry.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function submit() {
@@ -105,17 +160,18 @@ export default function PGIApplication() {
 
     setLoading(true);
 
-    await apiPost("/api/v1/application/submit", {
+    await apiPost("/api/v1/bi/application/submit", {
         applicationId: appId,
         facilityType: form.facilityType,
         loanAmount: form.loanAmount,
         bankruptcy: form.bankruptcy
+    }, {
+      credentials: "include"
     });
 
     track("application_submitted", {
       coverage_type: form.facilityType
     });
-    notifyAIConversion("application", form.loanAmount);
     clearDraft();
     setLoading(false);
     setStep(99);
@@ -196,7 +252,7 @@ export default function PGIApplication() {
       {/* STEP 3 – LOAN DETAILS */}
       {step === 3 && (
         <>
-          <h1>Loan & Guarantee</h1>
+          <h1>Loan Details</h1>
 
           <select
             value={form.facilityType}
@@ -217,13 +273,6 @@ export default function PGIApplication() {
             placeholder="Loan Amount"
             value={form.loanAmount}
             onChange={e => setForm({ ...form, loanAmount: Number(e.target.value) })}
-          />
-
-          <input
-            type="number"
-            placeholder="Guarantee Amount"
-            value={form.guarantee_amount}
-            onChange={e => setForm({ ...form, guarantee_amount: Number(e.target.value) })}
           />
 
           <button onClick={() => setStep(4)}>Next</button>
@@ -324,8 +373,27 @@ export default function PGIApplication() {
         <>
           <h1>Application Submitted</h1>
           <p>
-            Your application has been received and moved to Documents Pending. Our team will
-            package it and forward to Purbeck.
+            Your application was submitted successfully. We are now processing your quote with PGI.
+          </p>
+          <p>Current PGI status: <strong>{pgiStatus}</strong></p>
+          <div className="mt-6">
+            <h2>Upload Supporting Documents</h2>
+            <input
+              type="file"
+              multiple
+              onChange={(e) => setUploadFiles(Array.from(e.target.files || []))}
+            />
+            {uploadFiles.length > 0 && (
+              <p>Selected files: {uploadFiles.map((selected) => selected.name).join(", ")}</p>
+            )}
+            {uploading && <p>Uploading... {uploadProgress}%</p>}
+            {!uploading && uploadProgress > 0 && <p>Upload complete ({uploadProgress}%). Re-upload anytime.</p>}
+            <button onClick={uploadDocuments} disabled={uploading || uploadFiles.length === 0}>
+              {uploading ? "Uploading..." : "Upload Documents"}
+            </button>
+          </div>
+          <p className="mt-4">
+            We will notify you by email/push once a quote is available.
           </p>
           <button
             onClick={subscribeToPush}
