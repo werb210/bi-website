@@ -15,6 +15,14 @@ interface LenderApplication {
   };
 }
 
+const stageDisplayMap: Record<string, string> = {
+  under_review: "Under Review",
+  quoted: "Quote Available",
+  bound: "Policy Issued",
+  policy_issued: "Policy Issued",
+  declined: "Declined",
+};
+
 export default function LenderPortal() {
   const [phone, setPhone] = useState<string | null>(null);
   const [apps, setApps] = useState<LenderApplication[]>([]);
@@ -118,7 +126,7 @@ export default function LenderPortal() {
       {apps.map((app) => (
         <div key={app.id} className="crm-card">
           <strong>{app.primary_contact_name || "Applicant"}</strong>
-          <p>Stage: {app.stage}</p>
+          <p>Stage: {stageDisplayMap[app.stage || ""] || app.stage || "-"}</p>
           <p>Premium: ${app.premium_calc?.annualPremium?.toLocaleString() || "-"}</p>
         </div>
       ))}
