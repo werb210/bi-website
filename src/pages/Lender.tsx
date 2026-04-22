@@ -6,7 +6,8 @@ function Pipeline() {
     "Application Started",
     "Application Submitted",
     "Under Review",
-    "Approved",
+    "Quote Available",
+    "Bound",
     "Policy Issued",
     "Declined",
   ];
@@ -14,7 +15,7 @@ function Pipeline() {
   return (
     <div className="mt-8">
       <h2 className="mb-4 text-xl">Sales Pipeline</h2>
-      <div className="grid gap-3 text-sm md:grid-cols-4 xl:grid-cols-7">
+      <div className="grid gap-3 text-sm md:grid-cols-4 xl:grid-cols-8">
         {stages.map((stage) => (
           <div key={stage} className="rounded bg-[#112A4D] p-3 text-center">
             {stage}
