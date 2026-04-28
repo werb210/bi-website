@@ -23,7 +23,8 @@ export default function MayaChat() {
     setMessages(prev => [...prev, userMessage]);
 
     try {
-      const data = await apiPost<{ reply?: string }>("/api/v1/maya/message", {
+      // BI_MAYA_CHAT_PATH_v53 — BI-Server route is /api/v1/maya-chat.
+      const data = await apiPost<{ reply?: string }>("/api/v1/maya-chat", {
         message: input
       });
 
