@@ -5,6 +5,10 @@
 // present in sessionStorage.
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+// BI_AUDIT_FIX_v58b — Vite ES-module import. Vite hashes the asset and
+// emits it to dist/assets/. Replaces the broken legacy static logo path
+// static URL that 404'd because Vite ignores root-level /assets/.
+import logoUrl from "../../assets/logos/website logo.png";
 import { getAuthUser, clearAuth, type AuthUser } from "../lib/auth";
 
 export default function Header() {
@@ -32,7 +36,7 @@ export default function Header() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3">
           <img
-            src="/assets/logos/website%20logo.png"
+            src={logoUrl}
             alt="Boreal Insurance"
             className="h-10 w-auto"
           />
