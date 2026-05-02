@@ -88,10 +88,11 @@ export default function Header() {
             </>
           )}
 
+          {/* BI_WEBSITE_BLOCK_v81_BF_LINK */}
           <a
-            href="https://www.boreal.financial/"
+            href="https://boreal.financial"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="rounded border border-white px-4 py-2 text-sm font-medium text-white transition hover:bg-white hover:text-black"
           >
             Visit Boreal Financial

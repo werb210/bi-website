@@ -16,6 +16,7 @@ import WhatIsPGI from "./pages/WhatIsPGI";
 import HowItWorks from "./pages/HowItWorks";
 import Coverage from "./pages/Coverage";
 import WhyItMatters from "./pages/WhyItMatters";
+// BI_WEBSITE_BLOCK_v81_ROUTES — orphan components routed.
 // BI_QUOTE_PUBLIC_v44 — formerly orphan pages
 import LenderPortal from "./pages/LenderPortal";
 import ReferrerPortal from "./pages/ReferrerPortal";
@@ -56,6 +57,14 @@ export default function App() {
         <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="/coverage" element={<Coverage />} />
         <Route path="/why-it-matters" element={<WhyItMatters />} />
+
+        {/* BI_WEBSITE_BLOCK_v81_ROUTES */}
+        <Route path="/lender/*" element={<LenderPortal />} />
+        <Route path="/referrer/*" element={<ReferrerPortal />} />
+        <Route path="/pgi-application" element={<PGIApplication />} />
+        <Route path="/quote-result" element={<QuoteResult />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/intro" element={<Intro />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
