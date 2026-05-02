@@ -5,110 +5,61 @@ import { CoreBadge } from "../components/CoreBadge";
 import { Section } from "../components/Section";
 import { UploadAndScrape } from "../components/UploadAndScrape";
 
-const ENTITY_TYPES = [
-  ["sole_proprietorship", "Sole Proprietorship"],
-  ["partnership", "Partnership"],
-  ["corporation", "Corporation"],
-  ["llc", "LLC"],
-  ["other", "Other"],
-];
-const LOAN_PURPOSES = [
-  ["working_capital", "Working capital"],
-  ["equipment", "Equipment purchase"],
-  ["expansion", "Business expansion"],
-  ["acquisition", "Business acquisition"],
-  ["real_estate", "Real estate"],
-  ["refinance", "Refinance existing debt"],
-  ["other", "Other"],
-];
-
 type State = Record<string, any>;
+
+const SECTION_FIELDS: Array<{ title: string; fields: string[] }> = [
+  { title: "Personal Guarantor", fields: ["guarantor_name", "guarantor_dob", "guarantor_address", "guarantor_email", "guarantor_phone"] },
+  { title: "Business", fields: ["country", "business_name", "business_address", "business_website", "entity_type", "business_number", "naics_code", "formation_date"] },
+  { title: "Loan", fields: ["loan_amount", "csbfp_backed", "loan_has_guaranteed_cap", "pgi_limit", "lender_name", "loan_funding_date", "loan_purpose", "personally_guaranteeing", "has_other_guarantors", "policy_start_date"] },
+  { title: "Financial", fields: ["annual_revenue", "ebitda", "total_debt", "monthly_debt_service", "collateral_value", "enterprise_value"] },
+  { title: "Risk", fields: ["payables_threatening", "upcoming_adverse_events", "bankruptcy_history", "insolvency_history", "personal_investigations", "business_investigations", "property_insurance_in_force", "personal_judgments", "business_judgments"] },
+  { title: "Consents", fields: ["electronic_signature", "info_accurate", "business_solvent", "no_undisclosed_events", "data_use", "credit_pull", "coverage_understood"] },
+];
 
 export default function Application() {
   const { publicId } = useParams<{ publicId: string }>();
   const nav = useNavigate();
-  const [s, setS] = useState<State>({});
+  const [s, setS] = useState<State>({ consents: {} });
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
     api.getApp(publicId!).then((r) => {
-      if (r.application.score_decision !== "approve") { nav("/"); return; }
-      setS(r.application);
+      if (r.application.score_decision !== "approve") {
+        nav("/");
+        return;
+      }
+      setS({ consents: {}, ...r.application });
       setLoaded(true);
     });
-  }, [publicId, nav]);
+  }, [nav, publicId]);
 
-  function set<K extends string>(k: K, v: any) { setS((p) => ({ ...p, [k]: v })); }
-  function setConsent(k: string, v: boolean) {
-    setS((p) => ({ ...p, consents: { ...(p.consents ?? {}), [k]: v } }));
-  }
+  const answered = useMemo(() => SECTION_FIELDS.reduce((sum, sec) => sum + sec.fields.filter((f) => (sec.title === "Consents" ? !!s.consents?.[f] : s[f] !== undefined && s[f] !== null && s[f] !== "")).length, 0), [s]);
 
   async function saveDraft() {
     setBusy(true); setErr(null);
-    try { await api.patchApp(publicId!, s); }
-    catch (ex: any) { setErr(ex.message ?? "Save failed"); }
-    finally { setBusy(false); }
+    try { await api.patchApp(publicId!, s); } catch (ex: any) { setErr(ex.message ?? "Save failed"); } finally { setBusy(false); }
   }
-
   async function submit() {
     setBusy(true); setErr(null);
-    try {
-      await api.patchApp(publicId!, s);
-      await api.submit(publicId!);
-      nav(`/applications/${publicId}/thanks`);
-    } catch (ex: any) {
-      const data = ex.data ?? {};
-      if (data.fields?.length) setErr(`Missing: ${data.fields.join(", ")}`);
-      else setErr(ex.message ?? "Could not submit");
-    } finally {
-      setBusy(false);
-    }
+    try { await api.patchApp(publicId!, s); await api.submit(publicId!); nav(`/applications/${publicId}/thanks`); } catch (ex: any) { setErr(ex.data?.fields?.length ? `Missing: ${ex.data.fields.join(", ")}` : ex.message ?? "Could not submit"); } finally { setBusy(false); }
   }
-
-  const counts = useMemo(() => ({
-    holder: [s.guarantor_name, s.guarantor_dob, s.guarantor_address, s.guarantor_email, s.guarantor_phone].filter(Boolean).length,
-    business: [s.country, s.business_name, s.business_address, s.business_website, s.entity_type, s.business_number, s.naics_code, s.formation_date].filter(Boolean).length,
-    loan: [s.loan_amount, s.csbfp_backed != null, s.loan_has_guaranteed_cap != null, s.pgi_limit, s.lender_name, s.loan_funding_date, s.loan_purpose, s.personally_guaranteeing != null, s.has_other_guarantors != null, s.policy_start_date].filter(Boolean).length,
-    financial: [s.annual_revenue, s.ebitda, s.total_debt, s.monthly_debt_service, s.collateral_value, s.enterprise_value].filter(Boolean).length,
-    risk: [s.payables_threatening != null, s.upcoming_adverse_events != null, s.bankruptcy_history != null, s.insolvency_history != null, s.personal_investigations != null, s.business_investigations != null, s.property_insurance_in_force != null, s.personal_judgments != null, s.business_judgments != null].filter(Boolean).length,
-    consents: ["electronic_signature", "info_accurate", "business_solvent", "no_undisclosed_events", "data_use", "credit_pull", "coverage_understood"].filter(k => s.consents?.[k]).length,
-  }), [s]);
-
-  const totalAnswered = counts.holder + counts.business + counts.loan + counts.financial + counts.risk + counts.consents;
-  const totalQuestions = 5 + 8 + 10 + 6 + 9 + 7;
 
   if (!loaded) return <div className="bi-card">Loading…</div>;
 
-  return <div className="bi-app-wrap" />;
-}
-
-function Q({ n, label, children }: { n: number; label: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <div className="bi-q">
-      <div className="bi-q-label"><span className="bi-q-num">{n}.</span> {label}</div>
-      {children}
+  return <div className="bi-app-wrap">
+    <div className="bi-card">
+      <div className="flex items-center justify-between gap-3"><h1>Application Form</h1><CoreBadge decision={s.score_decision} score={s.score} /></div>
+      <p>{answered}/45 answered</p>
+      <UploadAndScrape publicId={publicId!} onApply={(merged) => setS((p: State) => ({ ...p, ...merged }))} />
+      {err && <div className="form-error">{err}</div>}
+      {SECTION_FIELDS.map((sec) => <Section key={sec.title} title={sec.title} answered={sec.fields.filter((f) => sec.title === "Consents" ? !!s.consents?.[f] : !!s[f]).length} total={sec.fields.length} defaultOpen>
+        <div className="grid gap-3 md:grid-cols-2">
+          {sec.fields.map((f) => sec.title === "Consents" ? <label key={f}><input type="checkbox" checked={!!s.consents?.[f]} onChange={(e) => setS((p: State) => ({ ...p, consents: { ...(p.consents || {}), [f]: e.target.checked } }))} /> {f.replaceAll("_", " ")}</label> : <label key={f} className="bi-field"><span>{f.replaceAll("_", " ")}</span><input value={s[f] ?? ""} onChange={(e) => setS((p: State) => ({ ...p, [f]: e.target.value }))} /></label>)}
+        </div>
+      </Section>)}
+      <div className="mt-6 flex gap-3"><button className="secondary" disabled={busy} onClick={saveDraft}>Save Draft</button><button className="primary" disabled={busy} onClick={submit}>{busy ? "Submitting…" : "Submit"}</button></div>
     </div>
-  );
-}
-
-function YesNo({ value, onChange }: { value: boolean | null | undefined; onChange: (v: boolean) => void }) {
-  return (
-    <div className="bi-yesno">
-      <button type="button" className={`bi-pill ${value === true ? "selected" : ""}`} onClick={() => onChange(true)}>Yes</button>
-      <button type="button" className={`bi-pill ${value === false ? "selected" : ""}`} onClick={() => onChange(false)}>No</button>
-    </div>
-  );
-}
-
-function Consent({ n, label, k, s, on }: { n: number; label: string; k: string; s: State; on: (k: string, v: boolean) => void }) {
-  return (
-    <Q n={n} label={label}>
-      <label className="bi-consent">
-        <input type="checkbox" checked={!!s.consents?.[k]} onChange={(e) => on(k, e.target.checked)} />
-        Yes
-      </label>
-    </Q>
-  );
+  </div>;
 }

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Home from "./pages/Home";
 import NewApplication from "./pages/NewApplication";
@@ -27,6 +27,9 @@ export default function App() {
           <Route path="/applications/:publicId/thanks" element={<Thanks />} />
           <Route path="/lender/*" element={<LenderPortal />} />
           <Route path="/referrer/*" element={<ReferrerPortal />} />
+          <Route path="/application" element={<Navigate to="/applications/new" replace />} />
+          <Route path="/referral" element={<Navigate to="/referrer/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </BrowserRouter>

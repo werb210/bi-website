@@ -16,7 +16,7 @@ export default function Quote() {
 
   function applyNow() {
     sessionStorage.setItem("bi.quote", JSON.stringify({ loan, coveragePct, type, coverageAmount, annualPremium }));
-    nav("/application");
+    nav("/applications/new");
   }
 
   return (

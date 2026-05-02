@@ -1,9 +1,9 @@
-const VERSION = "v1";
+const VERSION = "v3-2026-05-02";
 const STATIC_CACHE = `bi-static-${VERSION}`;
 const RUNTIME_CACHE = `bi-runtime-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
 
-const STATIC_ASSETS = ["/", "/offline.html", "/manifest.json"];
+const STATIC_ASSETS = ["/offline.html", "/manifest.json"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(STATIC_CACHE).then((c) => c.addAll(STATIC_ASSETS)));

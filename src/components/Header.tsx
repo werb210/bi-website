@@ -50,7 +50,7 @@ export default function Header() {
                 Signed in as <span className="font-medium text-white">{displayName}</span>
               </span>
               <Link
-                to={user.userType === "lender" ? "/lender/portal" : user.userType === "referrer" ? "/referrer/portal" : "/application"}
+                to={user.userType === "lender" ? "/lender/portal" : user.userType === "referrer" ? "/referrer/dashboard" : "/applications/new"}
                 className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
               >
                 {user.userType === "lender" ? "Lender Portal" : user.userType === "referrer" ? "Referrer Portal" : "My Application"}
@@ -65,14 +65,14 @@ export default function Header() {
           ) : (
             <>
               <Link
-                to="/application"
+                to="/applications/new"
                 className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700"
               >
                 Apply Now
               </Link>
 
               <Link
-                to="/referral"
+                to="/referrer/login"
                 className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
               >
                 Referral Login
@@ -80,7 +80,7 @@ export default function Header() {
 
               {/* BI_AUDIT_FIX_v58 — was "/lender" (public page with fake stages) */}
               <Link
-                to="/lender/portal"
+                to="/lender/login"
                 className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
               >
                 Lender Login
