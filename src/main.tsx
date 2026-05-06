@@ -2,6 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
+// BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — carrier-aligned theme
+import "./styles/carrier.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

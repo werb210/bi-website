@@ -1,3 +1,4 @@
+// BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1
 import { useNavigate } from "react-router-dom";
 
 export default function Country() {
@@ -6,11 +7,17 @@ export default function Country() {
     <div className="bi-card">
       <h1>Select Your Country</h1>
       <p>This helps us ask the right questions for your region.</p>
-      <button className="bi-country" onClick={() => nav("/applications/new/score?country=CA")}>
-        Canada 🇨🇦
+      <button
+        type="button"
+        className="bi-country"
+        onClick={() => nav("/applications/new/score?country=CA")}
+      >
+        <span>Canada</span>
+        <span aria-hidden="true">🇨🇦</span>
       </button>
-      <button className="bi-country disabled" disabled>
-        United States 🇺🇸 — coming soon
+      <button type="button" className="bi-country disabled" disabled>
+        <span>United States</span>
+        <span aria-hidden="true">🇺🇸 — coming soon</span>
       </button>
     </div>
   );

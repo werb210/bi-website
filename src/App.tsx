@@ -30,6 +30,8 @@ import ReferrerPortal from "./pages/ReferrerPortal";
 export default function App() {
   return (
     <BrowserRouter>
+      {/* BI_WEBSITE_BLOCK_v168_CARRIER_RESKIN_v1 — aurora app shell */}
+      <div className="bi-app-shell">
       <div className="flex min-h-screen flex-col">
         <Header />
         <main className="bi-main flex-1">
@@ -62,6 +64,7 @@ export default function App() {
         </main>
         <Footer />
       </div>
+    </div>
     </BrowserRouter>
   );
 }
