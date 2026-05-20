@@ -174,13 +174,21 @@ export default function LenderPortal() {
             style={{ ...BTN, background: "#3b82f6", color: "white", border: "none" }}>
             + New Application
           </button>
-          <a href="/lender/api" onClick={(e) => { e.preventDefault(); navigate("/lender/api"); }} /* BI_WEBSITE_BLOCK_66_LENDER_IN_PORTAL_DOCS_v1 */
-            style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+          {/* BI_WEBSITE_BLOCK_v98_BRANDING_v1 — restore Try Demo App button */}
+          <button onClick={() => navigate("/lender/demo")}
+            style={{ ...BTN, background: "transparent",
+                     border: "1px solid #fbbf24", color: "#fbbf24",
+                     fontWeight: 500 }}>
+            ✨ Try Demo App
+          </button>
+          <a href="/lender/api" onClick={(e) => { e.preventDefault(); navigate("/lender/api"); }}
+            style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1",
+                     textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
             API Docs
           </a>
-          {/* BI_WEBSITE_BLOCK_v131_LENDER_SANDBOX_PANEL_v1 — self-service API keys + sandbox */}
           <a href="/lender/sandbox"
-            style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+            style={{ ...BTN, background: "transparent", border: "1px solid #2c3a52", color: "#cbd5e1",
+                     textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
             🔑 API Keys
           </a>
           <button onClick={signOut}
