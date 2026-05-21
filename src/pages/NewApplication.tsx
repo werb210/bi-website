@@ -20,6 +20,10 @@ export default function NewApplication() {
   const codeInputRef = useRef<HTMLInputElement | null>(null);
   const startedRef = useRef(false); // guard double-submit
   const verifiedRef = useRef(false);
+  // BI_WEBSITE_BLOCK_v325_OTP_AUTOSEND_LOOP_FIX_v1 — remember which
+  // phone digits we've already sent a code to, so the auto-fire effect
+  // does not re-send when the user backs out and the stage flips.
+  const sentForDigitsRef = useRef<string | null>(null);
 
   async function startOtp(p: string) {
     if (startedRef.current || busy) return;
@@ -28,6 +32,8 @@ export default function NewApplication() {
     setBusy(true);
     try {
       await api.applicantOtpStart(p);
+      // BI_WEBSITE_BLOCK_v325 — remember success so backToPhone() doesn't re-send.
+      sentForDigitsRef.current = String(p || "").replace(/\D/g, "");
       setStage("code");
       // focus the code input on next paint
       setTimeout(() => codeInputRef.current?.focus(), 0);
@@ -90,6 +96,8 @@ export default function NewApplication() {
   useEffect(() => {
     if (stage !== "phone") return;
     const digits = String(phone || "").replace(/\D/g, "");
+    // BI_WEBSITE_BLOCK_v325 — don't auto-resend for a phone we already sent to.
+    if (sentForDigitsRef.current === digits) return;
     if (digits.length === 10 || digits.length === 11) void startOtp(phone);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phone, stage]);
