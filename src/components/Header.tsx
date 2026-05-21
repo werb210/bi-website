@@ -3,7 +3,9 @@
 import { Link } from "react-router-dom";
 import logoUrl from "../assets/logo-boreal-mountains-white.svg";
 
-const APPLY_URL = "https://client.boreal.financial";
+// BI_WEBSITE_BLOCK_v326_APPLY_NOW_INTERNAL_LINK_v1 — Apply Now must
+// route to the BI insurance application form at /applications/new,
+// NOT the BF lending app. Previous APPLY_URL constant removed.
 
 export default function Header() {
   return (
@@ -21,10 +23,10 @@ export default function Header() {
              style={{ color: "rgba(255,255,255,0.85)", textDecoration: "none", fontWeight: 500 }}>
             Visit Boreal Financial
           </a>
-          <a href={APPLY_URL} target="_blank" rel="noopener noreferrer"
+          <Link to="/applications/new"
              style={{ background: "#3b82f6", color: "white", padding: "8px 18px", borderRadius: 999, textDecoration: "none", fontWeight: 500 }}>
             Apply Now
-          </a>
+          </Link>
         </nav>
       </div>
     </header>
