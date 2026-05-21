@@ -23,6 +23,8 @@ export default function LenderLogin() {
   const codeInputRef = useRef<HTMLInputElement | null>(null);
   const startedRef = useRef(false);
   const verifiedRef = useRef(false);
+  // BI_WEBSITE_BLOCK_v325_OTP_AUTOSEND_LOOP_FIX_v1 — see NewApplication.tsx.
+  const sentForDigitsRef = useRef<string | null>(null);
 
   async function start() {
     if (startedRef.current || busy) return;
@@ -44,6 +46,10 @@ export default function LenderLogin() {
         setErr(j?.error || `Could not send code (${r.status}).`);
         startedRef.current = false;
         return;
+      }
+      // BI_WEBSITE_BLOCK_v325 — remember success so Change-number doesn't re-send.
+      if (method === "sms") {
+        sentForDigitsRef.current = String(phone || "").replace(/\D/g, "");
       }
       setStage("code");
       setTimeout(() => codeInputRef.current?.focus(), 0);
@@ -85,10 +91,13 @@ export default function LenderLogin() {
   // Auto-forward phone -> start OTP
   useEffect(() => {
     if (stage === "phone" && method === "sms" && isPhoneReady(phone)) {
+      // BI_WEBSITE_BLOCK_v325 — don't auto-resend for the same digits.
+      const digits = String(phone || "").replace(/\D/g, "");
+      if (sentForDigitsRef.current === digits) return;
       void start();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phone, stage]);
+  }, [phone, stage, method]);
 
   // Auto-forward code -> verify
   useEffect(() => {
